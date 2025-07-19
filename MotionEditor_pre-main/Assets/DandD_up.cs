@@ -4,7 +4,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-
+//a
 
 public class DandD_up : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler, IDropHandler
 {

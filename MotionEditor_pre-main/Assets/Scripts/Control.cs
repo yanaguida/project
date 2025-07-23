@@ -12,10 +12,10 @@ public class Control : MonoBehaviour
 
 {
     //レーン4つ分のリスト
-    private List<int> lane1List = new List<int>();
-    private List<int> lane2List = new List<int>();
-    private List<int> lane3List = new List<int>();
-    private List<int> lane4List = new List<int>();
+    public List<int> lane1List = new List<int>();
+    public List<int> lane2List = new List<int>();
+    public List<int> lane3List = new List<int>();
+    public List<int> lane4List = new List<int>();
 
     private List<int>[] laneLists; // array to store lane**List
 
@@ -43,18 +43,10 @@ public class Control : MonoBehaviour
 
     }
 
-
-    void Update()
-    {
-        //なにもしない
-    }
-
-
     //引数にあるパーツの番号を現在選択中のパーツとして変数に保存するセッター
     public void SetChoiceParts(int num)
     {
         choiceParts = num;
-        Debug.Log(choiceParts);
     }
 
     //ゲッター
@@ -70,22 +62,18 @@ public class Control : MonoBehaviour
     {
         lane1List.Add(num);//lane1に追加
 
-        Debug.Log(string.Join(", ", lane1List.Select(obj => obj.ToString())));
     }
     public void Addlean2(int num)
     {
         lane2List.Add(num);//lane2に追加
-        Debug.Log(string.Join(", ", lane2List.Select(obj => obj.ToString())));
     }
     public void Addlean3(int num)
     {
         lane3List.Add(num);//lane3に追加
-        Debug.Log(string.Join(", ", lane3List.Select(obj => obj.ToString())));
     }
     public void Addlean4(int num)
     {
         lane4List.Add(num);//lane4に追加
-        Debug.Log(string.Join(", ", lane4List.Select(obj => obj.ToString())));
     }
 
 
@@ -185,8 +173,6 @@ public class Control : MonoBehaviour
                 values.Add(targetInput.text);
             }
         }
-
-        Debug.Log(string.Join(", ", values.Select(obj => obj.ToString())));
         return string.Join(", ", values.Select(obj => obj.ToString()));
     }
 
@@ -195,6 +181,59 @@ public class Control : MonoBehaviour
     {
         choiceParts = num;
     }
+       public List<int> GetColumnLanes(int columnIndex){
+        List<int> column = new List<int>();
+        foreach (var row in laneLists){
+            if (columnIndex < row.Count)
+                column.Add(row[columnIndex]);
+            else
+        column.Add(0); // データが不足している場合は0で埋める（調整可）
+        }
+        return column;
+    }
 
-
+    public List<float> GetColumnValues(int columnIndex){
+        List<float> columnValues = new List<float>();
+        List<int>[] laneLists = new List<int>[] { lane1List, lane2List, lane3List, lane4List };
+        foreach (List<int> lane in laneLists){
+            if (columnIndex < lane.Count){
+                int inputIndex = lane[columnIndex];
+                GameObject obj = GameObject.Find("Input" + inputIndex);
+                if (obj == null){
+                    columnValues.Add(float.NaN);
+                    continue;
+                }
+                TMPro.TMP_InputField input = obj.GetComponent<TMPro.TMP_InputField>();
+                if (input == null || string.IsNullOrWhiteSpace(input.text)){
+                    columnValues.Add(float.NaN);
+                }
+                else{
+                    if (float.TryParse(input.text, out float value)){
+                        columnValues.Add(value);
+                    }
+                    else{
+                        columnValues.Add(float.NaN);
+                    }
+                }
+            }
+            else{
+                columnValues.Add(float.NaN); // 要素がなければ NaN 補完
+            }
+        }
+        return columnValues;
+    }
+    public Dictionary<int, float> GetColumnLaneValueDict(int columnIndex){
+        List<int> lanes = GetColumnLanes(columnIndex);
+        List<float> values = GetColumnValues(columnIndex);
+        Dictionary<int, float> result = new Dictionary<int, float>();
+        for (int i = 0; i < Mathf.Min(lanes.Count, values.Count); i++){
+            int partId = lanes[i];
+            float value = values[i];
+        if (!float.IsNaN(value))
+        {
+            result[partId] = value;
+        }
+        }
+        return result;
+    }
 }

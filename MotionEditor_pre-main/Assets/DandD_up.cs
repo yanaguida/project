@@ -7,6 +7,7 @@ using UnityEngine.UI;
 //a
 //a
 //b
+//unko
 public class DandD_up : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler, IDropHandler
 {
 

@@ -23,10 +23,4 @@ public class EnterText : MonoBehaviour
             Debug.Log("//// inputField : NULL ////\nPLEASE FIX IT");
         }
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

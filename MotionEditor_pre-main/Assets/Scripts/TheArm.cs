@@ -12,16 +12,17 @@ public class TheArm : MonoBehaviour
     public Transform Left_Arm;
     public float Right_Arm_Angle = 0f;
     public float Left_Arm_Angle = 0f;
-    private float rotationSpeed = 30f;
     private float subtle=1.5f;
     private bool isRightArmMoving = false;
     private bool isLeftArmMoving = false;
 
-    public IEnumerator RightArm(bool isUP,float desiredAngle){
+    public IEnumerator RightArm(float desiredTime,float desiredAngle,bool isUP){
         if (isRightArmMoving){
             yield break;
         }
         isRightArmMoving = true;
+        float distance = Mathf.Abs(desiredAngle - Right_Arm_Angle);
+        float rotationSpeed = distance/desiredTime;
         while(true){
             if (!StopMotionR(desiredAngle))
                 break;
@@ -39,11 +40,13 @@ public class TheArm : MonoBehaviour
         isRightArmMoving = false;
     }
 
-    public IEnumerator LeftArm(bool isUP,float desiredAngle){
+    public IEnumerator LeftArm(float desiredtime,float desiredAngle, bool isUP){
         if (isLeftArmMoving){
             yield break;
         }
         isLeftArmMoving = true;
+        float distance = Mathf.Abs(desiredAngle - Left_Arm_Angle);
+        float rotationSpeed = distance/desiredtime;
         while(true){
             if (!StopMotionL(desiredAngle))
                 break;
@@ -59,10 +62,6 @@ public class TheArm : MonoBehaviour
         yield return null;
         }
         isLeftArmMoving = false;
-    }
-
-    public IEnumerator Empty(float desiredTime){
-        yield return new WaitForSeconds(desiredTime);
     }
 
     public bool StopMotionR(float desiredAngle){

@@ -16,7 +16,7 @@ public class Windows : MonoBehaviour
 {
 
     //ターゲットのアス比率
-    private static readonly float SCREEN_RATE = 11f / 6f;
+    //private static readonly float SCREEN_RATE = 11f / 6f;
 
     //スクリーンサイズ
     private int _width, _height;

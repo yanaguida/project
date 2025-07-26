@@ -1,87 +1,52 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Start3D : MonoBehaviour
 {
     /*
     ボタンが押されたら
-    エフェクトを流す
-    レーンの長さを測定
-    行ごとに区切られたlaneListを列で区切り再構成
-    モーション番号と値をdictionary型変数で対応付ける（Control.csに書いた）
-    同列内にあるモーションは同時に実行
-    終わったら次の列へ（繰り返し処理）
+    エフェクトを流し、テキストを変更
+    レーン１～４を同時に実行する。
     */
     public TheArm armScript; 
     public ParticleSystem electricEffect;
-    public bool isUP_R;
-    public bool isUP_L;
-    private int isOn=1;
-    private float desiredAngle;
-    private float desiredTime;
+    public GameObject StartButton;
+    public GameObject StopButton;
+    private bool isUP_R;
+    private bool isUP_L;
 
-    //OnClick関数はUnity上でいろいろいじらないといけないので注意（詳しくはChatGPTに）
+    public void Start(){
+        SwitchText(true);
+    }
+
     public void OnClick(){
-        isOn++;
-        if (isOn % 2 == 0){
-            electricEffect.Play();
-            int a = Control.instance.lane1List.Count;
-            int b = Control.instance.lane2List.Count;
-            int c = Control.instance.lane3List.Count;
-            int d = Control.instance.lane4List.Count;
-            int len =  Mathf.Max(a, b, c, d);
-            // コルーチンで時間ごとに処理
-            StartCoroutine(ExecuteLaneSequence(len));
+        SwitchText(false);
+        electricEffect.Play();
+        for(int i = 0;i<4;i++){
+            var dict = Control.instance.LaneDict(i);
+            StartCoroutine(ExecuteLane(dict));
         }
     }
 
-    IEnumerator ExecuteLaneSequence(int totalColumns){
-        for (int i = 0; i < totalColumns; i++){
-            var dict = Control.instance.GetColumnLaneValueDict(i);
-            if (dict.ContainsKey(1)){
-                SetisUP_R(dict[1]);
-                desiredAngle = dict[1];
-                StartCoroutine(armScript.RightArm(isUP_R,desiredAngle));
+    IEnumerator ExecuteLane(Dictionary<int,Control.InputData> dict){
+        foreach(var kvp in dict){
+            int index = kvp.Key;
+            Control.InputData data = kvp.Value;
+            if(data.partNumber == 1||data.partNumber == 11||data.partNumber == 12){
+                SetisUP_R(data.value);
+                yield return StartCoroutine(armScript.RightArm(data.time,data.value,isUP_R));
             }
-            if (dict.ContainsKey(11)){
-                SetisUP_R(dict[11]);
-                desiredAngle = dict[11];
-                StartCoroutine(armScript.RightArm(isUP_R,desiredAngle));
+            if(data.partNumber == 2||data.partNumber == 21||data.partNumber == 22){
+                SetisUP_L(data.value);
+                yield return StartCoroutine(armScript.LeftArm(data.time,data.value,isUP_L));
             }
-            if (dict.ContainsKey(12)){
-                SetisUP_R(dict[12]);
-                desiredAngle = dict[12];
-                StartCoroutine(armScript.RightArm(isUP_R,desiredAngle));
-            }
-            if (dict.ContainsKey(2)){
-                SetisUP_L(dict[2]);
-                desiredAngle = dict[2];
-                StartCoroutine(armScript.LeftArm(isUP_L,desiredAngle));
-            }
-            if (dict.ContainsKey(21)){
-                SetisUP_L(dict[21]);
-                desiredAngle = dict[21];
-                StartCoroutine(armScript.LeftArm(isUP_L,desiredAngle));
-            }
-            if (dict.ContainsKey(22)){
-                SetisUP_L(dict[22]);
-                desiredAngle = dict[22];
-                StartCoroutine(armScript.LeftArm(isUP_L,desiredAngle));
-            }
-            if(dict.ContainsKey(4)){
-                desiredTime = dict[4];
-                StartCoroutine(armScript.Empty(desiredTime));
-            }
-            if(dict.ContainsKey(41)){
-                desiredTime = dict[41];
-                StartCoroutine(armScript.Empty(desiredTime));
-            }
-            if(dict.ContainsKey(42)){
-                desiredTime = dict[42];
-                StartCoroutine(armScript.Empty(desiredTime));
-            }
-        yield return new WaitForSeconds(5f); // 注意５秒以内に処理が終わらなったら次の列の処理が実行されない
         }
+    }
+
+    private void SwitchText(bool i){
+        StartButton.SetActive(i);
+        StopButton.SetActive(!i);
     }
 
     public void SetisUP_R(float DesiredAngle){

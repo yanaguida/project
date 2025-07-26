@@ -7,11 +7,6 @@ public class FileOutput : MonoBehaviour
 {
     public TMP_InputField inputField;
     string fileName;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-
-    }
 
     public void OnClick()
     {
@@ -46,13 +41,4 @@ public class FileOutput : MonoBehaviour
     {
         inputField.text = null;
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
-
-
 }

@@ -155,7 +155,6 @@ public class DragandDrop : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndD
             if (Control.instance.IsInLane(i, num))
                 Control.instance.RemoveFromLane(i, num);
         }
-
         rectTransform.anchoredPosition = prevPos;
         rectTransform.SetParent(originalParent, false);
         SwitchIcons(true);

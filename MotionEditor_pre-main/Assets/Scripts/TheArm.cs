@@ -10,14 +10,16 @@ public class TheArm : MonoBehaviour
   */
     public Transform Right_Arm;
     public Transform Left_Arm;
-    public float Right_Arm_Angle = 0f;
-    public float Left_Arm_Angle = 0f;
+    public float MaxAngle;
+    public float MinAngle;
+    private float Right_Arm_Angle = 0f;
+    private float Left_Arm_Angle = 0f;
     private float subtle=1.5f;
     private bool isRightArmMoving = false;
     private bool isLeftArmMoving = false;
 
-    public IEnumerator RightArm(float desiredTime,float desiredAngle,bool isUP){
-        if (isRightArmMoving){
+    public IEnumerator RightArm(float desiredTime,float desiredAngle){
+        if (isRightArmMoving||desiredAngle>MaxAngle||desiredAngle<MinAngle){
             yield break;
         }
         isRightArmMoving = true;
@@ -26,22 +28,22 @@ public class TheArm : MonoBehaviour
         while(true){
             if (!StopMotionR(desiredAngle))
                 break;
-        float deltaAngle = rotationSpeed * Time.deltaTime;
-        if (isUP){
-            Right_Arm.Rotate(Vector3.forward * -deltaAngle);//上方向に動かす
-            Right_Arm_Angle += deltaAngle;//アームの可動域の制限
-        }
-        else{
-            Right_Arm.Rotate(Vector3.forward * deltaAngle);//下方向に動かす
-            Right_Arm_Angle -= deltaAngle;//アームの可動域の制限
-        }
-        yield return null;
+            float deltaAngle = rotationSpeed * Time.deltaTime;
+            if (SetisUP_R(desiredAngle)){
+                Right_Arm.Rotate(Vector3.forward * -deltaAngle);//上方向に動かす
+                Right_Arm_Angle += deltaAngle;//アームの可動域の制限
+            }
+            else{
+                Right_Arm.Rotate(Vector3.forward * deltaAngle);//下方向に動かす
+                Right_Arm_Angle -= deltaAngle;//アームの可動域の制限
+            }
+            yield return null;
         }
         isRightArmMoving = false;
     }
 
-    public IEnumerator LeftArm(float desiredtime,float desiredAngle, bool isUP){
-        if (isLeftArmMoving){
+    public IEnumerator LeftArm(float desiredtime,float desiredAngle){
+        if (isLeftArmMoving||desiredAngle>MaxAngle||desiredAngle<MinAngle){
             yield break;
         }
         isLeftArmMoving = true;
@@ -50,27 +52,40 @@ public class TheArm : MonoBehaviour
         while(true){
             if (!StopMotionL(desiredAngle))
                 break;
-        float deltaAngle = rotationSpeed * Time.deltaTime;
-        if (isUP){
-            Left_Arm.Rotate(Vector3.up * deltaAngle);//上方向に動かす
-            Left_Arm_Angle += deltaAngle;//アームの可動域の制限
-        }
-        else{
-            Left_Arm.Rotate(Vector3.up * -deltaAngle);//下方向に動かす
-            Left_Arm_Angle -= deltaAngle;//アームの可動域の制限
-        }
-        yield return null;
+            float deltaAngle = rotationSpeed * Time.deltaTime;
+            if (SetisUP_L(desiredAngle)){
+                Left_Arm.Rotate(Vector3.up * deltaAngle);//上方向に動かす
+                Left_Arm_Angle += deltaAngle;//アームの可動域の制限
+            }
+            else{
+                Left_Arm.Rotate(Vector3.up * -deltaAngle);//下方向に動かす
+                Left_Arm_Angle -= deltaAngle;//アームの可動域の制限
+            }
+            yield return null;
         }
         isLeftArmMoving = false;
     }
 
-    public bool StopMotionR(float desiredAngle){
-        float absValue = Mathf.Abs(Right_Arm_Angle - desiredAngle);
-        return absValue > subtle;
-
+    private bool SetisUP_R(float desiredAngle){
+        if(desiredAngle>Right_Arm_Angle)
+            return true;
+        else
+            return false;
     }
 
-    public bool StopMotionL(float desiredAngle){
+    private bool SetisUP_L(float desiredAngle){
+        if(desiredAngle>Left_Arm_Angle)
+            return true;
+        else
+            return false;
+    }
+
+    private bool StopMotionR(float desiredAngle){
+        float absValue = Mathf.Abs(Right_Arm_Angle - desiredAngle);
+        return absValue > subtle;
+    }
+
+    private bool StopMotionL(float desiredAngle){
         float absValue = Mathf.Abs(Left_Arm_Angle - desiredAngle);
         return absValue > subtle;
     }

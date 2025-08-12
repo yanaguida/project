@@ -5,27 +5,24 @@ using UnityEngine.UI;
 
 public class DragandDrop : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler, IDropHandler
 {
-    public RectTransform[] laneRects = new RectTransform[4]; // 0〜3: lane1〜4
-   
-
+    public RectTransform[] laneRects = new RectTransform[4];
     public GameObject normalIcon;
     public GameObject droppedIcon;
-
     public Vector2 prevPos;
+    public ScrollRect scrollRect;
     private RectTransform rectTransform;
     private RectTransform parentRectTransform;
-    public RectTransform contentRectTransform;
+    private RectTransform contentRectTransform;
     private Transform originalParent;
-    public ScrollRect scrollRect;
-
     public int num;
+    private float snapInterval = 100f;
 
     private void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
         parentRectTransform = rectTransform.parent as RectTransform;
         originalParent = rectTransform.parent;
-
+        contentRectTransform = GameObject.Find("Content").GetComponent<RectTransform>();
         scrollRect = GameObject.Find("Scroll View").GetComponent<ScrollRect>();
     }
 
@@ -78,7 +75,7 @@ public class DragandDrop : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndD
     private Vector2 GetLocalPosition(Vector2 screenPosition, Camera cam)
 {
     RectTransformUtility.ScreenPointToLocalPointInRectangle(
-        parentRectTransform, // ←ここを contentRectTransform から修正！
+        parentRectTransform, 
         screenPosition,
         cam,
         out var result
@@ -96,8 +93,7 @@ public class DragandDrop : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndD
 
     private void ChangePositionToLane(int laneIndex, Vector2 dropPos)
 {
-    rectTransform.SetParent(laneRects[laneIndex], false); // 親変更が先
-
+    rectTransform.SetParent(laneRects[laneIndex], false); 
     RectTransformUtility.ScreenPointToLocalPointInRectangle(
         laneRects[laneIndex],
         dropPos,
@@ -105,7 +101,8 @@ public class DragandDrop : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndD
         out var localPos
     );
 
-    localPos.y = 0f; // レーン内でのY位置（中央に合わせるなど）
+    localPos.y = 0f;
+    localPos.x = Mathf.Round(localPos.x / snapInterval) * snapInterval;
     rectTransform.anchoredPosition = localPos;
 }
 

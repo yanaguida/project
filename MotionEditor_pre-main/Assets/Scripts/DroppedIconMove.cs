@@ -4,7 +4,7 @@ using TMPro;
 public class DroppedIconMove : MonoBehaviour
 {
     private RectTransform droppedIconRect;
-    private float widthvalue=125;
+    private float widthrate=125;
     public int num;
 
      private void Awake()
@@ -20,7 +20,7 @@ public class DroppedIconMove : MonoBehaviour
     private void OnInputChanged(string newValue)
     {
         if (float.TryParse(newValue, out float time)){
-            ChangeChildWidth(time * widthvalue);
+            ChangeChildWidth(time * widthrate);
         }
     }
 

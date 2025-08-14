@@ -3,11 +3,7 @@ using System.Collections;
 
 public class TheArm : MonoBehaviour
 {
-  /*ミラガラの羽を上下に動かすためのスクリプト
-  コルーチン型の関数RightArmとLeftArm
-  第一引数で上か下か、第二引数で、どこまで上げるか
-  bool型関数StopMotionで無限ループから抜ける
-  */
+  //ミラガラの羽を上下に動かすためのスクリプト
     public Transform Right_Arm;
     public Transform Left_Arm;
     public float MaxAngle;

@@ -4,32 +4,76 @@ using TMPro;
 public class DroppedIconMove : MonoBehaviour
 {
     private RectTransform droppedIconRect;
-    private float widthrate=125;
-    public int num;
+    public int partNumber;
 
      private void Awake()
     {
-        droppedIconRect = transform.Find("front")?.GetComponent<RectTransform>();
-        GameObject inputObj = GameObject.Find("TimeInput" + num);
-        TMP_InputField inputField = inputObj.GetComponent<TMP_InputField>();
-        if (inputField != null){
-            inputField.onValueChanged.AddListener(OnInputChanged);
-        }
+        droppedIconRect = transform.Find("DroppedIcon"+partNumber)?.GetComponent<RectTransform>();
     }
 
-    private void OnInputChanged(string newValue)
+    public void ExtendLeft()
     {
-        if (float.TryParse(newValue, out float time)){
-            ChangeChildWidth(time * widthrate);
-        }
-    }
+        if (droppedIconRect != null)
+        {
+            Vector2 size = droppedIconRect.sizeDelta;
+            Vector2 pos = droppedIconRect.anchoredPosition;
 
-    private void ChangeChildWidth(float newWidth)
-    {
-        if (droppedIconRect != null){
-            var size = droppedIconRect.sizeDelta;
-            size.x = newWidth;
+            size.x += 100;
+            pos.x -= 50; 
+
             droppedIconRect.sizeDelta = size;
+            droppedIconRect.anchoredPosition = pos;
+        }
+    }
+
+    public void ExtendRight()
+    {
+        if (droppedIconRect != null)
+        {
+            Vector2 size = droppedIconRect.sizeDelta;
+            Vector2 pos = droppedIconRect.anchoredPosition;
+
+            size.x += 100;
+            pos.x += 50; 
+
+            droppedIconRect.sizeDelta = size;
+            droppedIconRect.anchoredPosition = pos;
+        }
+    }
+
+    public void ShrinkLeft()
+    {
+        if (droppedIconRect != null)
+        {
+            Vector2 size = droppedIconRect.sizeDelta;
+            Vector2 pos = droppedIconRect.anchoredPosition;
+
+            if (size.x > 100)
+            {
+                size.x -= 100;
+                pos.x += 50;
+
+                droppedIconRect.sizeDelta = size;
+                droppedIconRect.anchoredPosition = pos;
+            }
+        }
+    }
+
+    public void ShrinkRight()
+    {
+        if (droppedIconRect != null)
+        {
+            Vector2 size = droppedIconRect.sizeDelta;
+            Vector2 pos = droppedIconRect.anchoredPosition;
+
+            if (size.x > 100) 
+            {
+                size.x -= 100;
+                pos.x -= 50;
+
+                droppedIconRect.sizeDelta = size;
+                droppedIconRect.anchoredPosition = pos;
+            }
         }
     }
 }

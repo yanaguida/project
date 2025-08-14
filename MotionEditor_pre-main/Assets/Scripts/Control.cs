@@ -41,15 +41,16 @@ public class Control : MonoBehaviour
         public InputData(int partNumber){
             this.partNumber = partNumber;
             time = float.NaN;
-            GameObject timeObj = GameObject.Find("TimeInput" + partNumber);
-            if (timeObj != null){
-                TMPro.TMP_InputField timeInput = timeObj.GetComponent<TMPro.TMP_InputField>();
-                if (timeInput != null && float.TryParse(timeInput.text, out float parsedTime)){
-                    time = parsedTime;
+            GameObject timeObjGO = GameObject.Find("DroppedIcon" + partNumber);
+            if(timeObjGO != null){
+                RectTransform timeObj = timeObjGO.GetComponent<RectTransform>();
+                if(timeObj != null){
+                    float width = timeObj.rect.width;
+                    time =  width*0.005f;
                 }
             }
-           value = float.NaN;
-           GameObject valueObj = GameObject.Find("Input" + partNumber);
+            value = float.NaN;
+            GameObject valueObj = GameObject.Find("Input" + partNumber);
             if (valueObj != null){
                 var valueInput = valueObj.GetComponent<TMPro.TMP_InputField>();
                 if (valueInput != null && float.TryParse(valueInput.text, out float parsedValue)){

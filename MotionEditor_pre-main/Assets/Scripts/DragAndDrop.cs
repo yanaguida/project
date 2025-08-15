@@ -14,7 +14,6 @@ public class DragandDrop : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndD
     private RectTransform parentRectTransform;
     private Transform originalParent;
     public RectTransform stretchIcon;
-    public Lanereader laneReader;
     public Control control;
     public int partNumber;
     private float snapInterval = 100f;
@@ -35,7 +34,7 @@ public class DragandDrop : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndD
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        SwitchIcons(true);
+        SwitchIcons(false);
         rectTransform.SetParent(originalParent, false);
     }
 
@@ -144,22 +143,8 @@ public class DragandDrop : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndD
         droppedIcon.SetActive(!isDropped);
     }
 
-    public void ExtendLeft()
-    {
-        if (stretchIcon != null)
-        {
-            Vector2 size = stretchIcon.sizeDelta;
-            Vector2 pos = stretchIcon.anchoredPosition;
 
-            size.x += 100;
-            pos.x -= 50; 
-
-            stretchIcon.sizeDelta = size;
-            stretchIcon.anchoredPosition = pos;
-        }
-    }
-
-    public void ExtendRight()
+    public void ExtendRight(int lane)
     {
         if (stretchIcon != null)
         {
@@ -171,28 +156,12 @@ public class DragandDrop : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndD
 
             stretchIcon.sizeDelta = size;
             stretchIcon.anchoredPosition = pos;
+
+            control.RefreshLane(lane);
         }
     }
 
-    public void ShrinkLeft()
-    {
-        if (stretchIcon != null)
-        {
-            Vector2 size = stretchIcon.sizeDelta;
-            Vector2 pos = stretchIcon.anchoredPosition;
-
-            if (size.x > 100)
-            {
-                size.x -= 100;
-                pos.x += 50;
-
-                stretchIcon.sizeDelta = size;
-                stretchIcon.anchoredPosition = pos;
-            }
-        }
-    }
-
-    public void ShrinkRight()
+    public void ShrinkRight(int lane)
     {
         if (stretchIcon != null)
         {
@@ -206,6 +175,8 @@ public class DragandDrop : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndD
 
                 stretchIcon.sizeDelta = size;
                 stretchIcon.anchoredPosition = pos;
+
+                control.RefreshLane(lane);
             }
         }
     }

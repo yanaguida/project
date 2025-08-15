@@ -8,7 +8,7 @@ public class FileOutput : MonoBehaviour
     public TMP_InputField inputField;
     string fileName;
 
-    public void OnClick()
+ /*   public void OnClick()
     {
         fileName = inputField.text;
         // GetValuesから値を受け取り、ファイル出力をする
@@ -34,11 +34,11 @@ public class FileOutput : MonoBehaviour
         path = Directory.GetCurrentDirectory() + "/motion.txt";
         */
 
-        File.WriteAllText(path, lane1set + "\n\n" + lane2set + "\n\n" + lane3set + "\n\n" + lane4set);
+     /*   File.WriteAllText(path, lane1set + "\n\n" + lane2set + "\n\n" + lane3set + "\n\n" + lane4set);
     }
 
     public void TextReset()
     {
         inputField.text = null;
-    }
+    }*/
 }

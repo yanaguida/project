@@ -37,8 +37,9 @@ public class InputDataLoader
         if (startObjGO != null)
         {
             RectTransform startObj = startObjGO.GetComponent<RectTransform>();
-            if (startObj != null)
+            if (startObj != null){
                 start = (startObj.anchoredPosition.x+5500)*0.005f;
+            }
         }
 
         GameObject timeObjGO = GameObject.Find("StretchIcon" + partNumber);
@@ -80,9 +81,9 @@ public class Control : MonoBehaviour
         laneLists = new List<int>[] { lane1List, lane2List, lane3List, lane4List };
     }
 
-    public List<MotionPartData> GetLaneData(int laneIndex){
-        if (laneIndex < 0 || laneIndex >= laneData.Length) return null;
-        return laneData[laneIndex];
+    public List<MotionPartData> GetLaneData(int lane){
+        if (lane < 0 || lane >= laneData.Length) return null;
+        return laneData[lane];
     }
 
     public void DebugLaneData()
@@ -135,101 +136,34 @@ public class Control : MonoBehaviour
         }
     }
 
-    // 書き込み例
-    public void UpdateInputData(int lane, int index, float newTime, float newValue)
-    {
+    public void RefreshLane(int lane){
         if (lane < 0 || lane >= laneData.Length) return;
-        if (index < 0 || index >= laneData[lane].Count) return;
-
-        var data = laneData[lane][index];
-        data.time = newTime;   // これもsetter化が望ましいですが一旦publicで
-        data.value = newValue;
+        List<int> partList = laneLists[lane];
+        laneData[lane].Clear();
+        foreach (int partNumber in partList){
+            MotionPartData updated = InputDataLoader.LoadFromGameObjects(partNumber);
+            laneData[lane].Add(updated);
+            laneData[lane] = laneData[lane].OrderBy(d => d.start).ToList();
+        }
     }
-
-    // 読み取り例
-    public MotionPartData GetInputData(int lane, int index)
-    {
-        if (lane < 0 || lane >= laneData.Length) return null;
-        if (index < 0 || index >= laneData[lane].Count) return null;
-        return laneData[lane][index];
-    }
-
-    public void MovePartToLane(int targetLane, int partNumber)
-{
-    if (targetLane < 0 || targetLane >= laneLists.Length) return;
-
-    // 他のレーンから削除
-    for (int i = 0; i < laneLists.Length; i++)
-    {
-        if (i == targetLane) continue;
-        laneLists[i].Remove(partNumber);
-    }
-
-    // すでに同じレーンに含まれていなければ追加
-    if (!laneLists[targetLane].Contains(partNumber))
-    {
-        laneLists[targetLane].Add(partNumber);
-    }
-
-    // データを再読み込み（必要であれば）
-    LoadLaneData(targetLane);
-}
 
     public void AddToLane(int lane, int num){
         switch (lane)
         {
-            case 0: Addlean1(num); break;
-            case 1: Addlean2(num); break;
-            case 2: Addlean3(num); break;
-            case 3: Addlean4(num); break;
-        }
-    }
-
-    public void Addlean1(int num){
-        lane1List.Add(num);
-    }
-    public void Addlean2(int num){
-        lane2List.Add(num);
-    }
-    public void Addlean3(int num){
-        lane3List.Add(num);
-    }
-    public void Addlean4(int num){
-        lane4List.Add(num);
-    }
-
-    public  void RemoveFromOtherLanes(int lane,int num)
-    {
-        for (int i = 0; i < 4; i++)
-        {
-            if (i == lane) continue;
-            if (IsInLane(i, num))
-            {
-                RemoveFromLane(i, num);
-            }
+            case 0: lane1List.Add(num); break;
+            case 1: lane2List.Add(num); break;
+            case 2: lane3List.Add(num); break;
+            case 3: lane4List.Add(num); break;
         }
     }
 
     public void RemoveFromLane(int lane, int num){
         switch (lane){
-            case 0: Removelean1(num); break;
-            case 1: Removelean2(num); break;
-            case 2: Removelean3(num); break;
-            case 3: Removelean4(num); break;
+            case 0: lane1List.Remove(num); break;
+            case 1: lane2List.Remove(num); break;
+            case 2: lane3List.Remove(num); break;
+            case 3: lane4List.Remove(num); break;
         }
-    }
-
-    public void Removelean1(int num){
-        lane1List.Remove(num);
-    }
-    public void Removelean2(int num){
-        lane2List.Remove(num);
-    }
-    public void Removelean3(int num){
-        lane3List.Remove(num);
-    }
-    public void Removelean4(int num){
-        lane4List.Remove(num);
     }
 
     public bool IsInLane(int lane, int num){

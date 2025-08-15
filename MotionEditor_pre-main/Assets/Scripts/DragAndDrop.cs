@@ -8,13 +8,15 @@ public class DragandDrop : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndD
     public RectTransform[] laneRects = new RectTransform[4];
     public GameObject normalIcon;
     public GameObject droppedIcon;
-    public Vector2 prevPos;
-    public ScrollRect scrollRect;
+    private Vector2 prevPos;
+    private ScrollRect scrollRect;
     private RectTransform rectTransform;
     private RectTransform parentRectTransform;
-    private RectTransform contentRectTransform;
     private Transform originalParent;
-    public int num;
+    public RectTransform stretchIcon;
+    public Lanereader laneReader;
+    public Control control;
+    public int partNumber;
     private float snapInterval = 100f;
 
     private void Awake()
@@ -22,7 +24,6 @@ public class DragandDrop : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndD
         rectTransform = GetComponent<RectTransform>();
         parentRectTransform = rectTransform.parent as RectTransform;
         originalParent = rectTransform.parent;
-        contentRectTransform = GameObject.Find("Content").GetComponent<RectTransform>();
         scrollRect = GameObject.Find("Scroll View").GetComponent<ScrollRect>();
     }
 
@@ -56,16 +57,15 @@ public class DragandDrop : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndD
             if (RectTransformUtility.RectangleContainsScreenPoint(laneRects[i], screenPos, eventData.pressEventCamera))
             {
                 if (!IsLaneVisible(i)) { ResetParts(); return; }
-
-                AddToLane(i);
-                RemoveFromOtherLanes(i);
-                SwitchIcons(false);
                 ChangePositionToLane(i,screenPos);
-                Control.instance.SortLane(i);
+                SwitchIcons(false);
+                control.RemoveFromLane(i,partNumber);
+                control.AddToLane(i,partNumber);
+                control.LoadLaneData(i);
+                control.DebugLaneData();
                 return;
             }
         }
-
         // どのレーンにも入っていない
         ResetParts();
     }
@@ -93,38 +93,19 @@ public class DragandDrop : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndD
 
     private void ChangePositionToLane(int laneIndex, Vector2 dropPos)
 {
-    rectTransform.SetParent(laneRects[laneIndex], false); 
+    rectTransform.SetParent(laneRects[laneIndex], true); 
+    Vector2 localPos;
     RectTransformUtility.ScreenPointToLocalPointInRectangle(
         laneRects[laneIndex],
         dropPos,
         Camera.main,
-        out var localPos
+        out localPos
     );
 
     localPos.y = 0f;
     localPos.x = Mathf.Round(localPos.x / snapInterval) * snapInterval;
     rectTransform.anchoredPosition = localPos;
 }
-
-    private void AddToLane(int laneIndex)
-    {
-        if (!Control.instance.IsInLane(laneIndex, num))
-        {
-            Control.instance.AddToLane(laneIndex, num);
-        }
-    }
-
-    private void RemoveFromOtherLanes(int currentLane)
-    {
-        for (int i = 0; i < 4; i++)
-        {
-            if (i == currentLane) continue;
-            if (Control.instance.IsInLane(i, num))
-            {
-                Control.instance.RemoveFromLane(i, num);
-            }
-        }
-    }
 
     private bool IsLaneVisible(int laneIndex)
     {
@@ -149,8 +130,8 @@ public class DragandDrop : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndD
     {
         for (int i = 0; i < 4; i++)
         {
-            if (Control.instance.IsInLane(i, num))
-                Control.instance.RemoveFromLane(i, num);
+            if (control.IsInLane(i, partNumber))
+                control.RemoveFromLane(i, partNumber);
         }
         rectTransform.anchoredPosition = prevPos;
         rectTransform.SetParent(originalParent, false);
@@ -161,5 +142,71 @@ public class DragandDrop : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndD
     {
         normalIcon.SetActive(isDropped);
         droppedIcon.SetActive(!isDropped);
+    }
+
+    public void ExtendLeft()
+    {
+        if (stretchIcon != null)
+        {
+            Vector2 size = stretchIcon.sizeDelta;
+            Vector2 pos = stretchIcon.anchoredPosition;
+
+            size.x += 100;
+            pos.x -= 50; 
+
+            stretchIcon.sizeDelta = size;
+            stretchIcon.anchoredPosition = pos;
+        }
+    }
+
+    public void ExtendRight()
+    {
+        if (stretchIcon != null)
+        {
+            Vector2 size = stretchIcon.sizeDelta;
+            Vector2 pos = stretchIcon.anchoredPosition;
+
+            size.x += 100;
+            pos.x += 50; 
+
+            stretchIcon.sizeDelta = size;
+            stretchIcon.anchoredPosition = pos;
+        }
+    }
+
+    public void ShrinkLeft()
+    {
+        if (stretchIcon != null)
+        {
+            Vector2 size = stretchIcon.sizeDelta;
+            Vector2 pos = stretchIcon.anchoredPosition;
+
+            if (size.x > 100)
+            {
+                size.x -= 100;
+                pos.x += 50;
+
+                stretchIcon.sizeDelta = size;
+                stretchIcon.anchoredPosition = pos;
+            }
+        }
+    }
+
+    public void ShrinkRight()
+    {
+        if (stretchIcon != null)
+        {
+            Vector2 size = stretchIcon.sizeDelta;
+            Vector2 pos = stretchIcon.anchoredPosition;
+
+            if (size.x > 100) 
+            {
+                size.x -= 100;
+                pos.x -= 50;
+
+                stretchIcon.sizeDelta = size;
+                stretchIcon.anchoredPosition = pos;
+            }
+        }
     }
 }

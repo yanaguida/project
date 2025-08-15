@@ -85,4 +85,8 @@ public class TheArm : MonoBehaviour
         float absValue = Mathf.Abs(Left_Arm_Angle - desiredAngle);
         return absValue > subtle;
     }
+
+    public IEnumerator Wait(float desiredTime){
+        yield return new WaitForSeconds(desiredTime);
+    }
 }

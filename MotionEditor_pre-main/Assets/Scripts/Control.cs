@@ -3,121 +3,178 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using System;
-using Newtonsoft.Json.Linq;
-using Unity.VisualScripting;
 using System.Linq;
-using NUnit.Framework;
+
+public class MotionPartData
+{
+    public int partNumber;
+    public float start;
+    public float time;
+    public float value;
+
+    public MotionPartData(int partNumber, float start, float time, float value)
+    {
+        this.partNumber = partNumber;
+        this.start = start;
+        this.time = time;
+        this.value = value;
+    }
+    public override string ToString()
+{
+    return $"Part: {partNumber}, Start: {start}, Time: {time}, Value: {value}";
+}
+}
+
+public class InputDataLoader
+{
+    public static MotionPartData LoadFromGameObjects(int partNumber)
+    {
+        float start = 0f;
+        float time = 0f;
+        float value = 0f;
+
+        GameObject startObjGO = GameObject.Find("Part" + partNumber);
+        if (startObjGO != null)
+        {
+            RectTransform startObj = startObjGO.GetComponent<RectTransform>();
+            if (startObj != null)
+                start = (startObj.anchoredPosition.x+5500)*0.005f;
+        }
+
+        GameObject timeObjGO = GameObject.Find("StretchIcon" + partNumber);
+        if (timeObjGO != null)
+        {
+            RectTransform timeObj = timeObjGO.GetComponent<RectTransform>();
+            if (timeObj != null)
+                time = timeObj.rect.width * 0.005f;
+        }
+
+        GameObject valueObj = GameObject.Find("Input" + partNumber);
+        if (valueObj != null)
+        {
+            var input = valueObj.GetComponent<TMPro.TMP_InputField>();
+            if (input != null && float.TryParse(input.text, out float result))
+                value = result;
+        }
+
+        return new MotionPartData(partNumber, start, time, value);
+    }
+}
 
 public class Control : MonoBehaviour
-
 {
-    //レーン4つ分のリスト
+    public List<MotionPartData>[] laneData;
+    private List<int>[] laneLists; 
     public List<int> lane1List = new List<int>();
     public List<int> lane2List = new List<int>();
     public List<int> lane3List = new List<int>();
     public List<int> lane4List = new List<int>();
 
-    private List<int>[] laneLists; 
-
-    private int choiceParts = 0; //選択されているパーツ
-    public static Control instance;
-
     private void Awake()
     {
-        laneLists = new List<int>[] { lane1List, lane2List, lane3List, lane4List };
-        if (instance == null){
-            instance = this;
-            DontDestroyOnLoad(this.gameObject);
-        }
-        else{
-            Destroy(this.gameObject);
-        }
-    }
-
-    public class InputData{
-        public int partNumber;
-        public float time;
-        public float value;
-        public InputData(int partNumber){
-            this.partNumber = partNumber;
-            time = float.NaN;
-            GameObject timeObjGO = GameObject.Find("DroppedIcon" + partNumber);
-            if(timeObjGO != null){
-                RectTransform timeObj = timeObjGO.GetComponent<RectTransform>();
-                if(timeObj != null){
-                    float width = timeObj.rect.width;
-                    time =  width*0.005f;
-                }
-            }
-            value = float.NaN;
-            GameObject valueObj = GameObject.Find("Input" + partNumber);
-            if (valueObj != null){
-                var valueInput = valueObj.GetComponent<TMPro.TMP_InputField>();
-                if (valueInput != null && float.TryParse(valueInput.text, out float parsedValue)){
-                    value = parsedValue;
-                }
-            }
-        }
-    }
-
-    public Dictionary<int, InputData> LaneDict(int lane){
-        switch (lane)
+        laneData = new List<MotionPartData>[4];
+        for (int i = 0; i < 4; i++)
         {
-            case 0: return Lane1Dict(); 
-            case 1: return Lane2Dict(); 
-            case 2: return Lane3Dict(); 
-            case 3: return Lane4Dict();
-            default: return new Dictionary<int, InputData>();
+            laneData[i] = new List<MotionPartData>();
+        }
+        laneLists = new List<int>[] { lane1List, lane2List, lane3List, lane4List };
+    }
+
+    public List<MotionPartData> GetLaneData(int laneIndex){
+        if (laneIndex < 0 || laneIndex >= laneData.Length) return null;
+        return laneData[laneIndex];
+    }
+
+    public void DebugLaneData()
+{
+    for (int lane = 0; lane < laneData.Length; lane++)
+    {
+        Debug.Log($"--- Lane {lane + 1} ---");
+
+        if (laneData[lane] == null || laneData[lane].Count == 0)
+        {
+            Debug.Log("  No data.");
+            continue;
+        }
+
+        foreach (MotionPartData data in laneData[lane])
+        {
+            Debug.Log(data.ToString());
+        }
+    }
+}
+
+    public void RefreshPartData(int partNumber)
+{
+    for (int lane = 0; lane < laneData.Length; lane++)
+    {
+        for (int i = 0; i < laneData[lane].Count; i++)
+        {
+            if (laneData[lane][i].partNumber == partNumber)
+            {
+                MotionPartData updated = InputDataLoader.LoadFromGameObjects(partNumber);
+                laneData[lane][i] = updated;
+                return;
+            }
+        }
+    }
+}
+
+    // 読み込み（GameObjectからMotionPartData生成して保持）
+    public void LoadLaneData(int lane)
+    {
+        if (lane < 0 || lane >= laneData.Length) return;
+
+        laneData[lane].Clear();
+        var laneList = laneLists[lane];
+        foreach (int partNumber in laneList)
+        {
+            var data = InputDataLoader.LoadFromGameObjects(partNumber);
+            laneData[lane].Add(data);
+            laneData[lane] = laneData[lane].OrderBy(d => d.start).ToList();
         }
     }
 
-    public Dictionary<int, InputData> Lane1Dict(){
-        Dictionary<int, InputData> lane1Dict = new Dictionary<int, InputData>();
-        for (int i = 0; i < lane1List.Count; i++){
-            int partNumber = lane1List[i]; 
-            lane1Dict[i] = new InputData(partNumber); 
-        }
-        return lane1Dict;
+    // 書き込み例
+    public void UpdateInputData(int lane, int index, float newTime, float newValue)
+    {
+        if (lane < 0 || lane >= laneData.Length) return;
+        if (index < 0 || index >= laneData[lane].Count) return;
+
+        var data = laneData[lane][index];
+        data.time = newTime;   // これもsetter化が望ましいですが一旦publicで
+        data.value = newValue;
     }
 
-    public Dictionary<int, InputData> Lane2Dict(){
-        Dictionary<int, InputData> lane2Dict = new Dictionary<int, InputData>();
-        for (int i = 0; i < lane2List.Count; i++){
-            int partNumber = lane2List[i]; 
-            lane2Dict[i] = new InputData(partNumber); 
-        }
-        return lane2Dict;
+    // 読み取り例
+    public MotionPartData GetInputData(int lane, int index)
+    {
+        if (lane < 0 || lane >= laneData.Length) return null;
+        if (index < 0 || index >= laneData[lane].Count) return null;
+        return laneData[lane][index];
     }
 
-    public Dictionary<int, InputData> Lane3Dict(){
-        Dictionary<int, InputData> lane3Dict = new Dictionary<int, InputData>();
-        for (int i = 0; i < lane3List.Count; i++){
-            int partNumber = lane3List[i]; 
-            lane3Dict[i] = new InputData(partNumber); 
-        }
-        return lane3Dict;
-    }
-    
-    public Dictionary<int, InputData> Lane4Dict(){
-        Dictionary<int, InputData> lane4Dict = new Dictionary<int, InputData>();
-        for (int i = 0; i < lane4List.Count; i++){
-            int partNumber = lane4List[i]; 
-            lane4Dict[i] = new InputData(partNumber); 
-        }
-        return lane4Dict;
+    public void MovePartToLane(int targetLane, int partNumber)
+{
+    if (targetLane < 0 || targetLane >= laneLists.Length) return;
+
+    // 他のレーンから削除
+    for (int i = 0; i < laneLists.Length; i++)
+    {
+        if (i == targetLane) continue;
+        laneLists[i].Remove(partNumber);
     }
 
-    //引数にあるパーツの番号を現在選択中のパーツとして変数に保存するセッター
-    public void SetChoiceParts(int num){
-        choiceParts = num;
+    // すでに同じレーンに含まれていなければ追加
+    if (!laneLists[targetLane].Contains(partNumber))
+    {
+        laneLists[targetLane].Add(partNumber);
     }
 
-    //ゲッター
-    public int GetChoiceParts(){
-        return choiceParts;
-    }
+    // データを再読み込み（必要であれば）
+    LoadLaneData(targetLane);
+}
 
-     //リストに値を追加する関数
     public void AddToLane(int lane, int num){
         switch (lane)
         {
@@ -141,25 +198,40 @@ public class Control : MonoBehaviour
         lane4List.Add(num);
     }
 
-    //対象レーンのリストにおいて引数にあるパーツの番号が何番目にあるかを返す
-    public int Countlean1(int num){
-        int x = lane1List.IndexOf(num);
-        return x;
-    }
-    public int Countlean2(int num){
-        int x = lane2List.IndexOf(num);
-        return x;
-    }
-    public int Countlean3(int num){
-        int x = lane3List.IndexOf(num);
-        return x;
-    }
-    public int Countlean4(int num){
-        int x = lane4List.IndexOf(num);
-        return x;
+    public  void RemoveFromOtherLanes(int lane,int num)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            if (i == lane) continue;
+            if (IsInLane(i, num))
+            {
+                RemoveFromLane(i, num);
+            }
+        }
     }
 
-    //対象レーンのリストに引数にあるパーツの番号が含まれているかを確認して、あれば1無ければ0を返す
+    public void RemoveFromLane(int lane, int num){
+        switch (lane){
+            case 0: Removelean1(num); break;
+            case 1: Removelean2(num); break;
+            case 2: Removelean3(num); break;
+            case 3: Removelean4(num); break;
+        }
+    }
+
+    public void Removelean1(int num){
+        lane1List.Remove(num);
+    }
+    public void Removelean2(int num){
+        lane2List.Remove(num);
+    }
+    public void Removelean3(int num){
+        lane3List.Remove(num);
+    }
+    public void Removelean4(int num){
+        lane4List.Remove(num);
+    }
+
     public bool IsInLane(int lane, int num){
         switch (lane){
             case 0: return Checklean1(num) == 1;
@@ -189,99 +261,5 @@ public class Control : MonoBehaviour
         if (lane4List.Contains(num) == true)
             return 1;
         else return 0;
-    }
-
-    //対象レーンのリストから引数にあるパーツの番号を取り除く
-    public void RemoveFromLane(int lane, int num){
-        switch (lane){
-            case 0: Removelean1(num); break;
-            case 1: Removelean2(num); break;
-            case 2: Removelean3(num); break;
-            case 3: Removelean4(num); break;
-        }
-    }
-
-    public void Removelean1(int num){
-        lane1List.Remove(num);
-    }
-    public void Removelean2(int num){
-        lane2List.Remove(num);
-    }
-    public void Removelean3(int num){
-        lane3List.Remove(num);
-    }
-    public void Removelean4(int num){
-        lane4List.Remove(num);
-    }
-
-    //対象レーンをX軸で並べ替える
-    public void SortLane(int lane){
-         switch (lane){
-            case 0: Sortlean1(); break;
-            case 1: Sortlean2(); break;
-            case 2: Sortlean3(); break;
-            case 3: Sortlean4(); break;
-        }
-    }
-
-    public void Sortlean1(){
-        lane1List.Sort((a, b) => {
-            float xa = GetX(a);
-            float xb = GetX(b);
-            return xa.CompareTo(xb);
-        });
-    }
-     public void Sortlean2(){
-        lane2List.Sort((a, b) => {
-            float xa = GetX(a);
-            float xb = GetX(b);
-            return xa.CompareTo(xb);
-        });
-    }
-     public void Sortlean3(){
-        lane3List.Sort((a, b) => {
-            float xa = GetX(a);
-            float xb = GetX(b);
-            return xa.CompareTo(xb);
-        });
-    }
-     public void Sortlean4(){
-        lane4List.Sort((a, b) => {
-            float xa = GetX(a);
-            float xb = GetX(b);
-            return xa.CompareTo(xb);
-        });
-    }
-
-    float GetX(int partID){
-        GameObject obj = GameObject.Find("Part" + partID);
-        if (obj == null) return float.MaxValue; 
-            RectTransform rt = obj.GetComponent<RectTransform>();
-        return rt.anchoredPosition.x;
-    }
-
-    //FileOutPut用関数
-    public string Getlean(int laneNum){
-        return string.Join(", ", laneLists[laneNum - 1].Select(obj => obj.ToString()));
-    }
-
-    public string GetValues(int laneNum){
-        List<string> values = new List<string>();
-        List<int> targetList = new List<int>(laneLists[laneNum - 1]);
-        foreach (int x in targetList){
-            GameObject obj = GameObject.Find("Input" + x);
-            if (obj == null){
-                values.Add("NULL");
-                continue;
-            }
-            TMPro.TMP_InputField input = obj.GetComponent<TMPro.TMP_InputField>();
-            if (input == null || string.IsNullOrEmpty(input.text)){
-                values.Add("NULL");
-            }
-            else{
-                values.Add(input.text);
-            }
-        }   
-        return string.Join(", ", values);
     }
 }

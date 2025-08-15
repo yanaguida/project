@@ -30,9 +30,11 @@ public class Start3D : MonoBehaviour
 
    IEnumerator ExecuteLane(List<MotionPartData> dataList)
     {
+        float elapsedtime = 0f;
         for (int i = 0; i < dataList.Count; i++)
         {
             MotionPartData data = dataList[i];
+            data.start -= elapsedtime;
             Debug.Log($"Index: {i}, Part: {data.partNumber},Start: {data.start}, Time: {data.time},Value: {data.value}");
             yield return StartCoroutine(armScript.Wait(data.start));
             if (data.partNumber == 1 || data.partNumber == 11 || data.partNumber == 12){
@@ -41,6 +43,7 @@ public class Start3D : MonoBehaviour
             else if (data.partNumber == 2 || data.partNumber == 21 || data.partNumber == 22){
                 yield return StartCoroutine(armScript.LeftArm(data.time, data.value));
             }
+            elapsedtime += data.start+data.time;
         }
     }
 

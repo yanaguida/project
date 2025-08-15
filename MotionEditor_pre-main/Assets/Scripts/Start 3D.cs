@@ -13,6 +13,7 @@ public class Start3D : MonoBehaviour
     public ParticleSystem electricEffect;
     public GameObject StartButton;
     public GameObject StopButton;
+    public Control control;
 
     public void Start(){
         SwitchText(true);
@@ -22,20 +23,23 @@ public class Start3D : MonoBehaviour
         SwitchText(false);
         electricEffect.Play();
         for(int i = 0;i<4;i++){
-            var dict = Control.instance.LaneDict(i);
-            StartCoroutine(ExecuteLane(dict));
+            List<MotionPartData> dataList = control.GetLaneData(i);
+            StartCoroutine(ExecuteLane(dataList));
         }
     }
 
-    IEnumerator ExecuteLane(Dictionary<int,Control.InputData> dict){
-        foreach(var kvp in dict){
-            int index = kvp.Key;
-            Control.InputData data = kvp.Value;
-            if(data.partNumber == 1||data.partNumber == 11||data.partNumber == 12){
-                yield return StartCoroutine(armScript.RightArm(data.time,data.value));
+   IEnumerator ExecuteLane(List<MotionPartData> dataList)
+    {
+        for (int i = 0; i < dataList.Count; i++)
+        {
+            MotionPartData data = dataList[i];
+            Debug.Log($"Index: {i}, Part: {data.partNumber},Start: {data.start}, Time: {data.time},Value: {data.value}");
+            yield return StartCoroutine(armScript.Wait(data.start));
+            if (data.partNumber == 1 || data.partNumber == 11 || data.partNumber == 12){
+                yield return StartCoroutine(armScript.RightArm(data.time, data.value));
             }
-            if(data.partNumber == 2||data.partNumber == 21||data.partNumber == 22){
-                yield return StartCoroutine(armScript.LeftArm(data.time,data.value));
+            else if (data.partNumber == 2 || data.partNumber == 21 || data.partNumber == 22){
+                yield return StartCoroutine(armScript.LeftArm(data.time, data.value));
             }
         }
     }

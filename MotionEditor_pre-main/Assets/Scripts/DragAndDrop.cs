@@ -61,7 +61,6 @@ public class DragandDrop : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndD
                 control.RemoveFromLane(i,partNumber);
                 control.AddToLane(i,partNumber);
                 control.LoadLaneData(i);
-                control.DebugLaneData();
                 return;
             }
         }

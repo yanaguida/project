@@ -2,15 +2,15 @@ using UnityEngine;
 
 public class ActiveManager : MonoBehaviour
 {
-    public GameObject gameObject;
+    public GameObject tekitou;
 
     public void OnClickActivate()
     {
-        this.gameObject.SetActive(true);
+        this.tekitou.SetActive(true);
     }
 
     public void OnClickDeactivate()
     {
-        this.gameObject.SetActive(false);
+        this.tekitou.SetActive(false);
     }
 }

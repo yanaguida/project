@@ -3,14 +3,13 @@ using System.Collections;
 
 public class Functions : MonoBehaviour
 {
-  //ミラガラの羽を上下に動かすためのスクリプト
     public Transform Right_Arm;
     public Transform Left_Arm;
     public float MaxAngle;
     public float MinAngle;
     private float Right_Arm_Angle = 0f;
     private float Left_Arm_Angle = 0f;
-    private float subtle=1.5f;
+    private float subtle=2f;
     private bool isRightArmMoving = false;
     private bool isLeftArmMoving = false;
 
@@ -21,9 +20,14 @@ public class Functions : MonoBehaviour
         isRightArmMoving = true;
         float distance = Mathf.Abs(desiredAngle - Right_Arm_Angle);
         float rotationSpeed = distance/desiredTime;
+        if (distance <= subtle){
+            yield return StartCoroutine(Wait(desiredTime));
+            isRightArmMoving = false;
+            yield break;
+        }
         while(true){
             float absValue = Mathf.Abs(Right_Arm_Angle - desiredAngle);
-            if (absValue<subtle)
+            if (absValue<=subtle)
                 break;
             float deltaAngle = rotationSpeed * Time.deltaTime;
             if (desiredAngle>Right_Arm_Angle){
@@ -34,7 +38,7 @@ public class Functions : MonoBehaviour
                 Right_Arm.Rotate(Vector3.forward * deltaAngle);
                 Right_Arm_Angle -= deltaAngle;
             }
-            yield return null;
+            yield return null; 
         }
         isRightArmMoving = false;
     }

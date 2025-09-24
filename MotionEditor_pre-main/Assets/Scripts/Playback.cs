@@ -1,51 +1,48 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 public class Playback : MonoBehaviour
 {
-    public Functions funScript; 
+    public Motors rightmotor;
+    public Motors leftmotor;
+    public LED led;
     public GameObject StartButton;
     public GameObject StopButton;
     public GameObject RedLineObj;
     private Coroutine redlineCoroutine;
     private bool isPlaying = false;
     private float redLineSpeed = 200f;
-    private ArmLane rightarm;
-    private ArmLane leftarm;
-    private SelectLane light;
-    public Functions FunScript;
-    public SwitchOn switchScript;
+    private List<ILane> allLanes = new List<ILane>();
 
     public void Awake(){
         SwitchText(true);
-        GameObject lane1 = GameObject.Find("lane_1");
-        rightarm = lane1.AddComponent<ArmLane>();
-        rightarm.SetKind(armKind.Right);
-        GameObject lane2 = GameObject.Find("lane_2");
-        leftarm = lane2.AddComponent<ArmLane>();
-        leftarm.SetKind(armKind.Left);
-        GameObject lane3 = GameObject.Find("lane_3");
-        light = lane3.AddComponent<SelectLane>();
-        rightarm.funScript = funScript;
-        leftarm.funScript = funScript;
-        light.switchScript = switchScript;
+        allLanes = new List<ILane>(FindObjectsOfType<MonoBehaviour>().OfType<ILane>());
+        foreach (var lane in allLanes){
+            if (lane is ArmLane armLane){
+                armLane.motorScript = (armLane.name.Contains("right")) ? rightmotor : leftmotor;
+            }
+            else if (lane is SelectLane selectLane){
+                selectLane.ledScript = led;
+            }
+            else
+            Debug.Log("laneの取得に失敗しました");
+        }
     }
 
     public void OnClick(){
         if (isPlaying) return;
         StartPlayback();
-        StartCoroutine(StopPlayback(CalculateLastLaneTime(rightarm.GetTotalTime(),leftarm.GetTotalTime(),light.GetTotalTime())));
+        StartCoroutine(StopPlayback(CalculateLastLaneTime()));
     }
 
     private void StartPlayback(){
         isPlaying = true;
-        rightarm.SetLaneData();
-        StartCoroutine(rightarm.ExecuteLane());
-        leftarm.SetLaneData();
-        StartCoroutine(leftarm.ExecuteLane());
-        light.SetLaneData();
-        StartCoroutine(light.ExecuteLane());
+        foreach (var lane in allLanes){
+            lane.SetLaneData();
+            StartCoroutine(lane.ExecuteLane());
+        }
         if(RedLineObj != null){
             RedLineObj.SetActive(true);
             RectTransform RedLine = RedLineObj.GetComponent<RectTransform>();
@@ -62,14 +59,12 @@ public class Playback : MonoBehaviour
         isPlaying = false;
     }
 
-    private float CalculateLastLaneTime(float lane1time,float lane2time,float lane3time){
-        if(lane1time>lane2time&&lane1time>lane3time){
-            return lane1time;
+    private float CalculateLastLaneTime(){
+        float maxTime = 0f;
+        foreach (var lane in allLanes){
+            maxTime = Mathf.Max(maxTime, lane.GetTotalTime());
         }
-        else if(lane2time>lane3time)
-        return lane2time;
-        else
-        return lane3time;
+        return maxTime;
     }
 
     private IEnumerator Redline(RectTransform obj, float speed){

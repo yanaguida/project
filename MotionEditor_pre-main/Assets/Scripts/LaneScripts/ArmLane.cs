@@ -24,6 +24,14 @@ public class ArmLane : Lanes<ArmData>
         yield return StartCoroutine(motorScript.Motor(data.time,data.value));
     }
 
+    public List<string> ExportData(){
+        var lines = new List<string>();
+        foreach (var data in LaneData){
+            lines.Add($"start : {data.start}, time : {data.time}, value : {data.value}");
+        }
+        return lines;
+    }
+
     protected override float GetStart(ArmData data) => data.start;
     protected override float GetTime(ArmData data) => data.time;
 }

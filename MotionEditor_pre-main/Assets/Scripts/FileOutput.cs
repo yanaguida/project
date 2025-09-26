@@ -1,44 +1,58 @@
 using UnityEngine;
-using System;
 using System.IO;
 using TMPro;
+using System.Collections.Generic;
+using System.Linq;
 
 public class FileOutput : MonoBehaviour
 {
     public TMP_InputField inputField;
-    string fileName;
+    private List<ILane> allLanes = new List<ILane>();
 
- /*   public void OnClick()
+    void Awake()
     {
-        fileName = inputField.text;
-        // GetValuesから値を受け取り、ファイル出力をする
-        // Lane1_partsNumber : *, *, *, *
-        // values : *, *, *, *
-        string lane1set = "Lane1_partsNumber : " + Control.instance.Getlean(1) + "\nvalues : " + Control.instance.GetValues(1);
-        string lane2set = "Lane2_partsNumber : " + Control.instance.Getlean(2) + "\nvalues : " + Control.instance.GetValues(2);
-        string lane3set = "Lane3_partsNumber : " + Control.instance.Getlean(3) + "\nvalues : " + Control.instance.GetValues(3);
-        string lane4set = "Lane4_partsNumber : " + Control.instance.Getlean(4) + "\nvalues : " + Control.instance.GetValues(4);
+        // ILaneを継承しているMonoBehaviourをすべて取得
+        allLanes = FindObjectsOfType<MonoBehaviour>().OfType<ILane>().ToList();
+    }
 
-        string path;
+    public void OnClick()
+    {
+        string fileName = inputField.text;
+        if (string.IsNullOrEmpty(fileName))
+        {
+            Debug.LogWarning("ファイル名が入力されていません。");
+            return;
+        }
 
-#if UNITY_EDITOR
-            path = Application.dataPath + "/" + fileName + ".txt";
+        string outputDir = Application.dataPath + "/Output";
+        Directory.CreateDirectory(outputDir);
+        string path = Path.Combine(outputDir, fileName + ".txt");
+        List<string> lines = new List<string>();
 
-#else
-        path = Directory.GetCurrentDirectory() + "/" + fileName + ".txt";
+        foreach (var lane in allLanes)
+        {
+            lane.SetLaneData();
+            if (lane is ArmLane armLane)
+            {
+                string label = armLane.armkind == armKind.Right ? "[Right ArmLane]" : "[Left ArmLane]";
+                lines.Add(label);
+                lines.AddRange(armLane.ExportData());
+                lines.Add("");
+            }
+            else if (lane is SelectLane selectLane)
+            {
+                lines.Add("[LED Lane]");
+                lines.AddRange(selectLane.ExportData());
+                lines.Add("");
+            }
+        }
 
-#endif
-
-        /*
-        //path = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\') + "/motion.txt";
-        path = Directory.GetCurrentDirectory() + "/motion.txt";
-        */
-
-     /*   File.WriteAllText(path, lane1set + "\n\n" + lane2set + "\n\n" + lane3set + "\n\n" + lane4set);
+        File.WriteAllLines(path, lines);
+        Debug.Log($"書き出し完了: {path}");
     }
 
     public void TextReset()
     {
-        inputField.text = null;
-    }*/
+        inputField.text = string.Empty;
+    }
 }

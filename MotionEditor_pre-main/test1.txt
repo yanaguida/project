@@ -1,0 +1,9 @@
+[Right ArmLane]
+start : 1, time : 2, value : 130
+
+[Left ArmLane]
+start : 1, time : 2, value : 130
+
+[SelectLane]
+start : 1, time : 2, emotion : Smile
+

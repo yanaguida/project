@@ -1,0 +1,6 @@
+[Right ArmLane]
+start:2,time:4,value:130
+start:7,time:4,value:0
+[Left ArmLane]
+start:3,time:8,value:130
+[LED Lane]

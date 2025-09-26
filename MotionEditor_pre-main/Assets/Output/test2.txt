@@ -1,9 +1,0 @@
-[Right ArmLane]
-start : 1, time : 2, value : 130
-
-[Left ArmLane]
-start : 1, time : 2, value : 130
-
-[LED Lane]
-start : 1.5, time : 2, emotion : Sad
-

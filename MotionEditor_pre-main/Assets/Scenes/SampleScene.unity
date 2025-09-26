@@ -25666,7 +25666,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f238a4a09997174d8e84b39263e9870, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tekitou: {fileID: 0}
+  tekitou: {fileID: 1762433961}
 --- !u!224 &1770664666 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1313501107638432382, guid: 1c90c4b60813f7c4498d19249691114c, type: 3}

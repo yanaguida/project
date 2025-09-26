@@ -26,7 +26,7 @@ public class SelectLane : Lanes<SelectPartData>
     public List<string> ExportData(){
         var lines = new List<string>();
         foreach (var data in LaneData){
-            lines.Add($"start : {data.start}, time : {data.time}, emotion : {data.emotion}");
+            lines.Add($"start:{data.start},time:{data.time},emotion:{data.emotion}");
         }
         return lines;
     }

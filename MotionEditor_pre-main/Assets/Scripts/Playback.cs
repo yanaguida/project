@@ -13,7 +13,7 @@ public class Playback : MonoBehaviour
     public GameObject RedLineObj;
     private Coroutine redlineCoroutine;
     private bool isPlaying = false;
-    private float redLineSpeed = 200f;
+    private float redLineSpeed = 100f;
     private List<ILane> allLanes = new List<ILane>();
 
     public void Awake(){

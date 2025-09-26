@@ -23,6 +23,14 @@ public class SelectLane : Lanes<SelectPartData>
         yield return StartCoroutine(ledScript.Toggle(data.time, data.emotion));
     }
 
+    public List<string> ExportData(){
+        var lines = new List<string>();
+        foreach (var data in LaneData){
+            lines.Add($"start : {data.start}, time : {data.time}, emotion : {data.emotion}");
+        }
+        return lines;
+    }
+
     protected override float GetStart(SelectPartData data) => data.start;
     protected override float GetTime(SelectPartData data) => data.time;
 }

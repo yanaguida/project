@@ -11,11 +11,11 @@ public abstract class Icons : MonoBehaviour, IDragHandler, IBeginDragHandler, IE
     protected Transform originalParent;
     protected float snapInterval;
     protected const float adjustX = 5480;
-    protected const float distanceRate = 0.005f;
+    protected const float distanceRate = 0.01f;
     protected float start;
     protected float time;
-    private const float defaulttime = 2f;
-    private const float step = 0.5f;
+    private const float defaulttime = 4f;
+    private const float step = 1f;
     private float dtime = 20f;
 
     protected void Awake(){

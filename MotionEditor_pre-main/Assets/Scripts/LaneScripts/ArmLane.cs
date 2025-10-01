@@ -27,7 +27,7 @@ public class ArmLane : Lanes<ArmData>
     public List<string> ExportData(){
         var lines = new List<string>();
         foreach (var data in LaneData){
-            lines.Add($"start : {data.start}, time : {data.time}, value : {data.value}");
+            lines.Add($"start:{data.start},time:{data.time},value:{data.value}");
         }
         return lines;
     }

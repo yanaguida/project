@@ -37,13 +37,11 @@ public class FileOutput : MonoBehaviour
                 string label = armLane.armkind == armKind.Right ? "[Right ArmLane]" : "[Left ArmLane]";
                 lines.Add(label);
                 lines.AddRange(armLane.ExportData());
-                lines.Add("");
             }
             else if (lane is SelectLane selectLane)
             {
                 lines.Add("[LED Lane]");
                 lines.AddRange(selectLane.ExportData());
-                lines.Add("");
             }
         }
 

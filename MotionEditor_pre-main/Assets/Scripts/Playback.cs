@@ -8,6 +8,7 @@ public class Playback : MonoBehaviour
     public Motors rightmotor;
     public Motors leftmotor;
     public LED led;
+    public Audio music;
     public GameObject StartButton;
     public GameObject StopButton;
     public GameObject RedLineObj;
@@ -24,11 +25,27 @@ public class Playback : MonoBehaviour
                 armLane.motorScript = (armLane.name.Contains("right")) ? rightmotor : leftmotor;
             }
             else if (lane is SelectLane selectLane){
-                selectLane.ledScript = led;
+                if(selectLane.name.Contains("led")){
+                    selectLane.ledScript = led;
+                }
+                
+                else{
+                    Debug.Log("エラー");
+                }
+                
+                
             }
-            else
+            else if(lane is SelectMusicLane selectmusicLane){
+                if(selectmusicLane.name.Contains("music")){
+                    selectmusicLane.musicScript = music;
+                }
+            }
+
+            
+            else{
             Debug.Log("laneの取得に失敗しました");
         }
+    }
     }
 
     public void OnClick(){

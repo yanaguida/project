@@ -14,9 +14,9 @@ public class Motors : MonoBehaviour
     public float MinAngle;
     public XYZ xyz;
     public int direction;
-    private float CurrentAngle = 0f;
+    public float CurrentAngle = 0f;
     private float subtle=2f;
-    private bool isMotorMoving = false;
+    public bool isMotorMoving = false;
 
     void Start(){
         GameObject motorGO = this.gameObject;
@@ -67,5 +67,11 @@ public class Motors : MonoBehaviour
         }
         else
         Debug.Log("directionに1か-1以外の数字が入っています");
+    }
+
+    public void ResetMoter(){
+        motor.localRotation = Quaternion.identity;
+        CurrentAngle = 0f;
+        isMotorMoving = false;
     }
 }

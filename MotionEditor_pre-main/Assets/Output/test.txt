@@ -1,0 +1,4 @@
+[Right ArmLane]
+[Left ArmLane]
+[LED Lane]
+start:45,time:4,emotion:Smile

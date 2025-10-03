@@ -10,7 +10,7 @@ public abstract class Icons : MonoBehaviour, IDragHandler, IBeginDragHandler, IE
     protected Vector2 prevPos;
     protected Transform originalParent;
     protected float snapInterval;
-    protected const float adjustX = 5480;
+    protected const float adjustX = 1280;
     protected const float distanceRate = 0.01f;
     protected float start;
     protected float time;

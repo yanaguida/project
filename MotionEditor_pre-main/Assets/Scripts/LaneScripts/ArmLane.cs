@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using System.Collections;
 
-public enum armKind{Right,Left}
-
 public class ArmLane : Lanes<ArmData>
 {
     public Motors motorScript; 

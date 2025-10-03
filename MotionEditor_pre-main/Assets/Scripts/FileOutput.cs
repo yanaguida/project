@@ -40,7 +40,8 @@ public class FileOutput : MonoBehaviour
             }
             else if (lane is SelectLane selectLane)
             {
-                lines.Add("[LED Lane]");
+                string label = selectLane.stringkind == stringKind.LED ? "[LED Lane]" : "[Music Lane]";
+                lines.Add(label);
                 lines.AddRange(selectLane.ExportData());
             }
         }

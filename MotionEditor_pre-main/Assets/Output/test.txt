@@ -1,0 +1,8 @@
+[Music Lane]
+start:1,time:4,emotion:Smile
+[Right ArmLane]
+start:1,time:4,value:130
+[Left ArmLane]
+start:1,time:4,value:130
+[LED Lane]
+start:2,time:4,emotion:Wink

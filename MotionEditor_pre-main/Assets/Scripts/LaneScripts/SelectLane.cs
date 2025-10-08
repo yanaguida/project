@@ -7,6 +7,8 @@ using System.Collections;
 public class SelectLane : Lanes<SelectPartData>
 {
     public LED ledScript;
+    public Audio musicScript;
+    public stringKind stringkind;
 
     protected override SelectPartData CreateDataFromChild(Transform child)
     {
@@ -20,7 +22,12 @@ public class SelectLane : Lanes<SelectPartData>
 
     protected override IEnumerator ExecuteAction(SelectPartData data)
     {
+        if(stringkind == stringKind.LED)
         yield return StartCoroutine(ledScript.Toggle(data.time, data.emotion));
+        else if(stringkind == stringKind.Music)
+        yield return StartCoroutine(musicScript.PlayForSeconds(data.time, data.emotion));
+        else
+        Debug.Log("stringKindが未設定");
     }
 
     public List<string> ExportData(){

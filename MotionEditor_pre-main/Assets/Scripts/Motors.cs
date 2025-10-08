@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public enum XYZ{
     up,
@@ -14,13 +15,15 @@ public class Motors : MonoBehaviour
     public float MinAngle;
     public XYZ xyz;
     public int direction;
-    private float CurrentAngle = 0f;
+    public float CurrentAngle = 0f;
     private float subtle=2f;
-    private bool isMotorMoving = false;
+    public bool isMotorMoving = false;
+    public Quaternion initialRotation;
 
     void Start(){
         GameObject motorGO = this.gameObject;
         motor = motorGO.GetComponent<Transform>();
+        initialRotation = motor.rotation;
     }
 
     public IEnumerator Motor(float desiredTime, float desiredAngle)

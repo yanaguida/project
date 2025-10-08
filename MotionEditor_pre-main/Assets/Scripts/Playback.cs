@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
+public enum armKind{Right,Left,Head}
+public enum stringKind{LED,Music}
+
 public class Playback : MonoBehaviour
 {
     public Motors rightmotor;
@@ -22,30 +25,16 @@ public class Playback : MonoBehaviour
         allLanes = new List<ILane>(FindObjectsOfType<MonoBehaviour>().OfType<ILane>());
         foreach (var lane in allLanes){
             if (lane is ArmLane armLane){
-                armLane.motorScript = (armLane.name.Contains("right")) ? rightmotor : leftmotor;
+                if(armLane.armkind == armKind.Right) armLane.motorScript = rightmotor;
+                else if(armLane.armkind == armKind.Left) armLane.motorScript = leftmotor;
+                else Debug.Log("ArmLane型laneの取得に失敗");
             }
             else if (lane is SelectLane selectLane){
-                if(selectLane.name.Contains("led")){
-                    selectLane.ledScript = led;
-                }
-                
-                else{
-                    Debug.Log("エラー");
-                }
-                
-                
+                if(selectLane.stringkind == stringKind.LED) selectLane.ledScript = led;               
+                else if(selectLane.stringkind == stringKind.Music) selectLane.musicScript = music;
+                else Debug.Log("SelectLane型laneの取得に失敗");
             }
-            else if(lane is SelectMusicLane selectmusicLane){
-                if(selectmusicLane.name.Contains("music")){
-                    selectmusicLane.musicScript = music;
-                }
-            }
-
-            
-            else{
-            Debug.Log("laneの取得に失敗しました");
         }
-    }
     }
 
     public void OnClick(){

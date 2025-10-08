@@ -3271,8 +3271,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1c90c4b60813f7c4498d19249691114c, type: 3}
-<<<<<<< HEAD
-=======
 --- !u!1 &184158464
 GameObject:
   m_ObjectHideFlags: 0
@@ -3409,7 +3407,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 184158464}
   m_CullTransparentMesh: 1
->>>>>>> 0412916ff24822744c0bce944600836ea8a819bc
 --- !u!224 &189835351 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1313501107638432382, guid: 1c90c4b60813f7c4498d19249691114c, type: 3}
@@ -4876,13 +4873,10 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1052374742}
   m_HandleRect: {fileID: 1052374741}
   m_Direction: 2
-<<<<<<< HEAD
   m_Value: 0.112950854
   m_Size: 0.3635087
-=======
   m_Value: 1
   m_Size: 0.33638576
->>>>>>> 0412916ff24822744c0bce944600836ea8a819bc
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -16021,12 +16015,9 @@ RectTransform:
   - {fileID: 1375187480}
   - {fileID: 1772484081}
   - {fileID: 861761689}
-<<<<<<< HEAD
   - {fileID: 1339997931}
-=======
   - {fileID: 1819162165}
   - {fileID: 116380002}
->>>>>>> 0412916ff24822744c0bce944600836ea8a819bc
   m_Father: {fileID: 1464969640}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -38080,13 +38071,10 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-<<<<<<< HEAD
   m_AnchoredPosition: {x: -60, y: -500}
   m_SizeDelta: {x: 10, y: 2000}
-=======
   m_AnchoredPosition: {x: -13, y: -500}
   m_SizeDelta: {x: 10, y: 1501}
->>>>>>> 0412916ff24822744c0bce944600836ea8a819bc
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &5733528378722227986
 MonoBehaviour:

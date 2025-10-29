@@ -9,7 +9,6 @@ public abstract class Icons : MonoBehaviour, IDragHandler, IBeginDragHandler, IE
     protected RectTransform parentRectTransform;
     protected Vector2 prevPos;
     protected Transform originalParent;
-    protected float snapInterval;
     protected const float adjustX = 5480;
     protected const float distanceRate = 0.01f;
     protected float start;
@@ -23,7 +22,6 @@ public abstract class Icons : MonoBehaviour, IDragHandler, IBeginDragHandler, IE
         parentRectTransform = IconRect.parent as RectTransform;
         prevPos = IconRect.anchoredPosition;
         originalParent = IconRect.parent;
-        snapInterval = 100f;
         time = defaulttime;
     }
 
@@ -55,7 +53,10 @@ public abstract class Icons : MonoBehaviour, IDragHandler, IBeginDragHandler, IE
             out localPos
         );
         localPos.y = 0f;
-        localPos.x = Mathf.Round(localPos.x / snapInterval) * snapInterval+dtime;
+        //ｘ軸に対して自由配置
+        localPos.x = Mathf.Round(localPos.x);
+        //グリッド線にスナップ
+        //localPos.x = Mathf.Round(localPos.x/100f) * 100f+20f;
         SetStart(localPos.x);
         IconRect.anchoredPosition = localPos;
     }
@@ -121,15 +122,16 @@ public abstract class Icons : MonoBehaviour, IDragHandler, IBeginDragHandler, IE
             float rightend = start+time;
             float leftend = 0f;
             Icons targeticon = targetobj.GetComponent<Icons>();
-            if (targeticon != null){
+            if (targeticon != null && targeticon.GetParent() == IconRect.parent){
                 leftend = targeticon.GetStart();
             }
             float dx = leftend - rightend;
-            if (dx==0)
-            {
-                return false;
-            }
+            if (dx==0)  return false;
         }
         return true;
+    }
+
+    public Transform GetParent(){
+        return IconRect.parent;
     }
 }

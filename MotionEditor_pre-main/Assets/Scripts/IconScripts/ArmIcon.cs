@@ -34,6 +34,12 @@ public class ArmIcon : Icons
         inputField_Arm.onValueChanged.AddListener(SetValue);
     }
 
+    public void SetData(float s,float t,float v){
+        start = s;
+        time = t;
+        value = v;
+    }
+
     public float GetValue(){
         return value;
     }

@@ -1,6 +1,0 @@
-[Right ArmLane]
-
-[Left ArmLane]
-
-[LED Lane]
-

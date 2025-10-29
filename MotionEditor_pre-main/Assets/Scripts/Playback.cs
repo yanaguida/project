@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.UI;
 
 public enum armKind{Right,Left,Head}
 public enum stringKind{LED,Music}
@@ -12,16 +13,23 @@ public class Playback : MonoBehaviour
     public Motors leftmotor;
     public LED led;
     public Audio music;
-    public GameObject StartButton;
-    public GameObject StopButton;
-    public GameObject RedLineObj;
+    public Rechord_Gear rechord_gear;
+    public Redline redline;
+    public GameObject StartText;
+    public GameObject StopText;
+    private Button targetButton;
+    private ColorBlock cb;
+    private Coroutine resetCoroutine;
     private Coroutine redlineCoroutine;
+    private Coroutine gearCoroutine;
     private bool isPlaying = false;
-    private float redLineSpeed = 100f;
     private List<ILane> allLanes = new List<ILane>();
 
     public void Awake(){
+        targetButton = GetComponent<Button>();
+        cb = targetButton.colors;
         SwitchText(true);
+        SwitchColor(true);
         allLanes = new List<ILane>(FindObjectsOfType<MonoBehaviour>().OfType<ILane>());
         foreach (var lane in allLanes){
             if (lane is ArmLane armLane){
@@ -38,9 +46,11 @@ public class Playback : MonoBehaviour
     }
 
     public void OnClick(){
-        if (isPlaying) return;
-        StartPlayback();
-        StartCoroutine(StopPlayback(CalculateLastLaneTime()));
+        if (isPlaying) StopPlayback();
+        else{
+            StartPlayback();
+            resetCoroutine = StartCoroutine(Reset(CalculateLastLaneTime()));
+        }
     }
 
     private void StartPlayback(){
@@ -49,20 +59,33 @@ public class Playback : MonoBehaviour
             lane.SetLaneData();
             StartCoroutine(lane.ExecuteLane());
         }
-        if(RedLineObj != null){
-            RedLineObj.SetActive(true);
-            RectTransform RedLine = RedLineObj.GetComponent<RectTransform>();
-            if(RedLine !=  null)
-            redlineCoroutine = StartCoroutine(Redline(RedLine, redLineSpeed));
-        }
+
+        if(redline==null) Debug.Log("redlineがnull");
+        else redlineCoroutine = StartCoroutine(redline.StartRedline());
+
+        if(rechord_gear==null) Debug.Log("rechord_gearがnull");
+        else gearCoroutine = StartCoroutine(rechord_gear.RotateGear());
+
         SwitchText(false);
+        SwitchColor(false);
     }
 
-    private IEnumerator StopPlayback(float wait){
+    private IEnumerator Reset(float wait){
         yield return new WaitForSeconds(wait);
-        StopRedline();
+        redline.ResetRedline(redlineCoroutine);
+        StopCoroutine(gearCoroutine);
         SwitchText(true);
+        SwitchColor(true);
         isPlaying = false;
+    }
+
+    private void StopPlayback(){
+        isPlaying = false;
+        StopCoroutine(gearCoroutine);
+        StopCoroutine(redlineCoroutine);
+        StopCoroutine(resetCoroutine);
+        SwitchText(true);
+        SwitchColor(true);
     }
 
     private float CalculateLastLaneTime(){
@@ -73,27 +96,27 @@ public class Playback : MonoBehaviour
         return maxTime;
     }
 
-    private IEnumerator Redline(RectTransform obj, float speed){
-        while (true){
-            obj.anchoredPosition += Vector2.right * speed * Time.deltaTime;
-            yield return null;
-        }
-    }
-
-    private void StopRedline(){
-        if (redlineCoroutine != null){
-            StopCoroutine(redlineCoroutine);
-            redlineCoroutine = null;
-        }
-        if (RedLineObj != null){
-            RedLineObj.SetActive(false);
-            RectTransform redLine = RedLineObj.GetComponent<RectTransform>();
-            redLine.anchoredPosition = new Vector2(320f, redLine.anchoredPosition.y); 
-        }
-    }
-
     private void SwitchText(bool i){
-        StartButton.SetActive(i);
-        StopButton.SetActive(!i);
+        StartText.SetActive(i);
+        StopText.SetActive(!i);
+    }
+
+    private void SwitchColor(bool i){
+        if(i){
+            cb.normalColor = new Color(0.69f, 0.77f, 0.87f);
+            cb.highlightedColor = new Color(0.69f, 0.77f, 0.87f);
+            cb.pressedColor = new Color(0.69f, 0.77f, 0.87f);
+            cb.selectedColor = new Color(0.69f, 0.77f, 0.87f);
+            cb.disabledColor = new Color(0.69f, 0.77f, 0.87f);
+            targetButton.colors = cb;
+        }
+        else{
+            cb.normalColor = new Color(1f, 0.75f, 0.71f);
+            cb.highlightedColor = new Color(1f, 0.75f, 0.71f);
+            cb.pressedColor = new Color(1f, 0.75f, 0.71f);
+            cb.selectedColor = new Color(1f, 0.75f, 0.71f);
+            cb.disabledColor = new Color(1f, 0.75f, 0.71f);
+            targetButton.colors = cb;
+        }
     }
 }

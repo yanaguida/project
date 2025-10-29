@@ -6,14 +6,13 @@ public class UIDraggableObject : MonoBehaviour, IEndDragHandler
 {
     private Vector3 originalPosition;
     private RectTransform myRect;
-    private Transform originalParent;
+    public Transform originalParent;
     private Canvas canvas;
 
     void Awake()
     {
         myRect = GetComponent<RectTransform>();
         canvas = GetComponentInParent<Canvas>();
-        originalParent = myRect.parent;
         originalPosition = Vector3.zero;
     }
 

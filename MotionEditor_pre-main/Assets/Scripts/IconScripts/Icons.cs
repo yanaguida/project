@@ -6,29 +6,24 @@ public abstract class Icons : MonoBehaviour, IDragHandler, IBeginDragHandler, IE
 {
     public RectTransform laneRects;
     protected RectTransform IconRect;
-    protected RectTransform parentRectTransform;
+    public RectTransform parentRectTransform;
     protected RectTransform trashRects;
-    protected Vector2 prevPos;
-    protected Transform originalParent;
+    protected Vector2 prevPos = Vector2.zero;
+    public Transform originalParent;
     protected const float adjustX = 5480;
     protected const float distanceRate = 0.01f;
     protected float start;
-    protected float time;
-    private const float defaulttime = 4f;
+    protected float time = 4f;
     private const float step = 1f;
-    private float dtime = 20f;
+    private float dtime = 0f;
 
     protected void Awake(){
         IconRect = GetComponent<RectTransform>();
-        parentRectTransform = IconRect.parent as RectTransform;
-        prevPos = IconRect.anchoredPosition;
-        originalParent = IconRect.parent;
-        time = defaulttime;
         trashRects = GameObject.Find("trash").GetComponent<RectTransform>();
     }
 
     protected void SetStart(float x){
-        start = (x+dtime-20f+adjustX)*distanceRate;
+        start = (x+dtime+adjustX)*distanceRate;
     }
 
     public float GetStart(){

@@ -103,11 +103,11 @@ public class Playback : MonoBehaviour
 
     private void SwitchColor(bool i){
         if(i){
-            cb.normalColor = new Color(0.69f, 0.77f, 0.87f);
-            cb.highlightedColor = new Color(0.69f, 0.77f, 0.87f);
-            cb.pressedColor = new Color(0.69f, 0.77f, 0.87f);
-            cb.selectedColor = new Color(0.69f, 0.77f, 0.87f);
-            cb.disabledColor = new Color(0.69f, 0.77f, 0.87f);
+            cb.normalColor = new Color(0.78f, 0.90f, 0.98f);
+            cb.highlightedColor = new Color(0.5f, 0.7f, 1.0f);
+            cb.pressedColor = new Color(0.5f, 0.7f, 1.0f);
+            cb.selectedColor = new Color(0.5f, 0.7f, 1.0f);
+            cb.disabledColor = new Color(0.5f, 0.7f, 1.0f);
             targetButton.colors = cb;
         }
         else{

@@ -30,6 +30,12 @@ public class SelectIcon : Icons
         SetEmotion(dropdown.value);
     }
 
+    public void SetData(float s,float t,string e){
+        start = s;
+        time = t;
+        emotion = e;
+    }
+
     private void SetEmotion(int index)
     {
         string selectedText = dropdown.options[dropdown.value].text;

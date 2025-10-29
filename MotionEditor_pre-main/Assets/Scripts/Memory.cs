@@ -18,7 +18,7 @@ public class Memory : MonoBehaviour
 
     void Start(){
         initialization();
-        StartCoroutine(SpawnMemory());
+        SpawnMemory();
     }
 
     private void initialization(){
@@ -36,7 +36,7 @@ public class Memory : MonoBehaviour
         memorypos.y = one.anchoredPosition.y;
     }
 
-    private IEnumerator SpawnMemory(){
+    private void SpawnMemory(){
         for(int i=0;i<memorynum;i++){
             GameObject clone = Instantiate(oneGO, this.transform);
             clonert = clone.GetComponent<RectTransform>();
@@ -45,7 +45,6 @@ public class Memory : MonoBehaviour
             step += int.Parse(memorytext.text);
             memorytext.text = step.ToString(); 
             memorypos.x += dif; 
-            yield return null; 
             }
     }
 }

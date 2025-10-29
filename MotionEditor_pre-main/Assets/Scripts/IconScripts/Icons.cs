@@ -7,6 +7,7 @@ public abstract class Icons : MonoBehaviour, IDragHandler, IBeginDragHandler, IE
     public RectTransform laneRects;
     protected RectTransform IconRect;
     protected RectTransform parentRectTransform;
+    protected RectTransform trashRects;
     protected Vector2 prevPos;
     protected Transform originalParent;
     protected const float adjustX = 5480;
@@ -23,6 +24,7 @@ public abstract class Icons : MonoBehaviour, IDragHandler, IBeginDragHandler, IE
         prevPos = IconRect.anchoredPosition;
         originalParent = IconRect.parent;
         time = defaulttime;
+        trashRects = GameObject.Find("trash").GetComponent<RectTransform>();
     }
 
     protected void SetStart(float x){
@@ -76,10 +78,15 @@ public abstract class Icons : MonoBehaviour, IDragHandler, IBeginDragHandler, IE
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        if(trashRects==null) Debug.Log("trashが存在しない");
         Vector2 screenPos = eventData.position;
         if (RectTransformUtility.RectangleContainsScreenPoint(laneRects, screenPos, eventData.pressEventCamera))
         {
             SetUI(laneRects,screenPos);
+            return;
+        }
+        else if(RectTransformUtility.RectangleContainsScreenPoint(trashRects, screenPos, eventData.pressEventCamera)){
+            Destroy(this.gameObject);
             return;
         }
         else

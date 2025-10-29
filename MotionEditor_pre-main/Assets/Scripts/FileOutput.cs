@@ -34,7 +34,10 @@ public class FileOutput : MonoBehaviour
             lane.SetLaneData();
             if (lane is ArmLane armLane)
             {
-                string label = armLane.armkind == armKind.Right ? "[Right ArmLane]" : "[Left ArmLane]";
+                string label;
+                if(armLane.armkind == armKind.Right) label = "[Right ArmLane]";
+                else if(armLane.armkind == armKind.Left) label = "[Left ArmLane]";
+                else label = "[Head ArmLane]";
                 lines.Add(label);
                 lines.AddRange(armLane.ExportData());
             }

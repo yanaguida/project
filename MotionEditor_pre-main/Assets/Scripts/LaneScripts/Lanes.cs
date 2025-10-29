@@ -4,9 +4,11 @@ using System.Collections.Generic;
 
 public interface ILane
 {
+    void ImportData(List<string> lines);
     void SetLaneData();
     IEnumerator ExecuteLane();
     float GetTotalTime();
+    void DeleteAllChild();
 }
 
 
@@ -16,6 +18,8 @@ public abstract class Lanes<TData> : MonoBehaviour , ILane
 
     protected abstract TData CreateDataFromChild(Transform child);
     protected abstract IEnumerator ExecuteAction(TData data);
+    protected abstract void CreateChildFromData();
+    public virtual void ImportData(List<string> lines){}
 
     public virtual void SetLaneData()
     {
@@ -59,6 +63,22 @@ public abstract class Lanes<TData> : MonoBehaviour , ILane
         }
 
         return totalTime;
+    }
+
+    protected GameObject FindInactiveObject(Transform parent, string name){
+        foreach (Transform child in parent){
+            if (child.name == name)  return child.gameObject;
+
+            GameObject result = FindInactiveObject(child, name);
+            if (result != null)  return result;
+        }
+        return null;
+    }
+
+    public void DeleteAllChild(){
+        foreach(Transform child in transform){
+            Destroy(child.gameObject);
+        }
     }
 
     protected abstract float GetStart(TData data);

@@ -7,7 +7,7 @@ public class Redline : MonoBehaviour
     private GameObject redlineGO;
     private RectTransform redline;
     private Vector2 prevPos;
-    private const float speed = 100f;
+    private float speed = ValueBox.GetDis();
 
     void Awake()
     {

@@ -22,6 +22,7 @@ public class Playback : MonoBehaviour
     private Coroutine resetCoroutine;
     private Coroutine redlineCoroutine;
     private Coroutine gearCoroutine;
+    private List<Coroutine> functionCoroutine = new List<Coroutine>();
     private bool isPlaying = false;
     private List<ILane> allLanes = new List<ILane>();
 
@@ -57,8 +58,10 @@ public class Playback : MonoBehaviour
         isPlaying = true;
         foreach (var lane in allLanes){
             lane.SetLaneData();
-            StartCoroutine(lane.ExecuteLane());
+            functionCoroutine.Add(StartCoroutine(lane.ExecuteLane()));
         }
+
+        Debug.Log(functionCoroutine[0]);
 
         if(redline==null) Debug.Log("redlineがnull");
         else redlineCoroutine = StartCoroutine(redline.StartRedline());
@@ -84,6 +87,9 @@ public class Playback : MonoBehaviour
         StopCoroutine(gearCoroutine);
         StopCoroutine(redlineCoroutine);
         StopCoroutine(resetCoroutine);
+        foreach (var func in functionCoroutine){
+            StopCoroutine(func);
+        }
         SwitchText(true);
         SwitchColor(true);
     }

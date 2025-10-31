@@ -86,12 +86,12 @@ public class ArmLane : Lanes<ArmData>
             }
             float dtime = (data.time-4f)*50f;
             Vector2 setPos;
-            setPos.x = data.start*100f-5480f+dtime;
+            setPos.x = data.start*ValueBox.GetDis()-ValueBox.GetAdjustX()+dtime;
             setPos.y = 0f;
             RectTransform cloneRT = clone.GetComponent<RectTransform>();
             cloneRT.anchoredPosition = setPos;
             Vector2 size;
-            size.x = data.time*100f;
+            size.x = data.time*ValueBox.GetDis();
             size.y = 200f;
             cloneRT.sizeDelta = size;
             TMP_InputField inputField = clone.GetComponentInChildren<TMP_InputField>(true);

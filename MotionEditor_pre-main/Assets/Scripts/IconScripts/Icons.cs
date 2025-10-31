@@ -2,37 +2,66 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+static class ValueBox
+{
+    private static float AdjustX = 0f;
+    private const float startPos = 520f;
+    private const float dispersec = 100f;//１秒につき１００メートル
+
+    public static void SetAdjustX(RectTransform LaneRect){
+        AdjustX = LaneRect.sizeDelta.x/2-startPos;
+    }
+
+    public static float GetAdjustX() => AdjustX;
+    public static float GetDis() => dispersec;
+    public static float GetRate() => 1f/dispersec;
+}
+
+
 public abstract class Icons : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler
 {
+    [SerializeField] private ScrollRect scrollRect;
     public RectTransform laneRects;
     protected RectTransform IconRect;
     public RectTransform parentRectTransform;
     protected RectTransform trashRects;
     protected Vector2 prevPos = Vector2.zero;
     public Transform originalParent;
-    protected const float adjustX = 5480;
-    protected const float distanceRate = 0.01f;
     protected float start;
     protected float time = 4f;
     private const float step = 1f;
     private float dtime = 0f;
+    private bool isdrag = false;
+    private Vector2 CurrentPos;
+    private float t=0;
 
     protected void Awake(){
         IconRect = GetComponent<RectTransform>();
         trashRects = GameObject.Find("trash").GetComponent<RectTransform>();
+        ValueBox.SetAdjustX(laneRects);
+    }
+
+    void Update(){
+        if(isdrag){
+            if(CurrentPos.x>=800f&&CurrentPos.y<=-600f){
+                t += Time.deltaTime;
+                scrollRect.horizontalNormalizedPosition += 0.001f*t;
+            }
+            else if(CurrentPos.x<=-1200f&&CurrentPos.y<=-600f){
+                t += Time.deltaTime;
+                scrollRect.horizontalNormalizedPosition -= 0.001f*t;
+            }
+            else t = 0;
+        }
     }
 
     protected void SetStart(float x){
-        start = (x+dtime+adjustX)*distanceRate;
+        start = (x+dtime+ValueBox.GetAdjustX())*ValueBox.GetRate();
     }
 
-    public float GetStart(){
-        return start;
-    }
+    public float GetStart() => start;
 
-     public float GetTime(){
-        return time;
-    }
+    public float GetTime() => time;
 
     protected void ResetUI(){
         IconRect.anchoredPosition = prevPos;
@@ -53,7 +82,7 @@ public abstract class Icons : MonoBehaviour, IDragHandler, IBeginDragHandler, IE
         //ｘ軸に対して自由配置
         localPos.x = Mathf.Round(localPos.x);
         //グリッド線にスナップ
-        //localPos.x = Mathf.Round(localPos.x/100f) * 100f+20f;
+        //localPos.x = Mathf.Round(localPos.x/ValueBox.GetDis()) * ValueBox.GetDis()+20f;
         SetStart(localPos.x);
         IconRect.anchoredPosition = localPos;
     }
@@ -61,6 +90,7 @@ public abstract class Icons : MonoBehaviour, IDragHandler, IBeginDragHandler, IE
     public void OnBeginDrag(PointerEventData eventData)
     {
         IconRect.SetParent(originalParent, false);
+        isdrag = true;
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -69,10 +99,12 @@ public abstract class Icons : MonoBehaviour, IDragHandler, IBeginDragHandler, IE
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
         parentRectTransform, eventData.position, eventData.pressEventCamera, out localPos);
         IconRect.anchoredPosition = localPos;
+        CurrentPos = localPos;
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        isdrag = false;
         if(trashRects==null) Debug.Log("trashが存在しない");
         Vector2 screenPos = eventData.position;
         if (RectTransformUtility.RectangleContainsScreenPoint(laneRects, screenPos, eventData.pressEventCamera))
@@ -127,8 +159,8 @@ public abstract class Icons : MonoBehaviour, IDragHandler, IBeginDragHandler, IE
             if (targeticon != null && targeticon.GetParent() == IconRect.parent){
                 leftend = targeticon.GetStart();
             }
-            float dx = leftend - rightend;
-            if (dx==0)  return false;
+            float dx = Mathf.Abs(leftend - rightend);
+            if (dx<=1f)  return false;
         }
         return true;
     }

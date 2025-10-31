@@ -15,8 +15,6 @@ public class Reset : MonoBehaviour
     public void Awake(){
         RightArm =RightArmGo.GetComponent<Transform>();
         LeftArm =LeftArmGo.GetComponent<Transform>();
-        
-
     }
 
     public void ResetAdachi(){
@@ -28,6 +26,5 @@ public class Reset : MonoBehaviour
         LeftMoterScript.CurrentAngle = 0f;
         RightArm.rotation = RightMoterScript.initialRotation;
         LeftArm.rotation = LeftMoterScript.initialRotation;
-
     }
 }

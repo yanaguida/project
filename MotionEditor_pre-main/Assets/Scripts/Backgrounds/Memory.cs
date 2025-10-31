@@ -45,6 +45,6 @@ public class Memory : MonoBehaviour
             step += int.Parse(memorytext.text);
             memorytext.text = step.ToString(); 
             memorypos.x += dif; 
-            }
+        }
     }
 }

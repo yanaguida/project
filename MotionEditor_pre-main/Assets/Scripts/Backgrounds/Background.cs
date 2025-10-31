@@ -10,8 +10,6 @@ public class Background : MonoBehaviour
     private int i=0;
 
     void Start(){
-        //bg_emo = rectTransform.Find("background_emo") as RectTransform;
-        //bg_meta = rectTransform.Find("background_meta") as RectTransform;
         emo_pos = bg_emo.anchoredPosition;
         meta_pos = bg_meta.anchoredPosition;
     }

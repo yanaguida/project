@@ -4,7 +4,7 @@ public class Spawner : MonoBehaviour
 {
     public GameObject Prefab;
     public GameObject Parent;
-    private Vector3 defaultPos = Vector3.zero;
+
     void OnMouseDown()
     {
         GameObject clone = Instantiate(Prefab, Parent.transform);

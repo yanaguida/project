@@ -1,21 +1,2 @@
-[Music Lane]
-start:0,time:3,emotion:Smile
-start:4,time:2.5,emotion:Sad
-start:7,time:3,emotion:Wink
-
 [Right ArmLane]
-start:0,time:5,value:130
-start:6.26,time:6,value:0
-start:13,time:4,value:90
-start:18,time:3,value:50
-
-[Left ArmLane]
-start:2.5,time:5,value:90
-start:9.8,time:6,value:130
-start:17,time:3.5,value:45
-
-[LED Lane]
-start:0,time:3,emotion:Sad
-start:4.5,time:2,emotion:Smile
-start:7.5,time:2.5,emotion:Wink
-start:10.2,time:3,emotion:Sad
+start:1.73,time:4,value:0

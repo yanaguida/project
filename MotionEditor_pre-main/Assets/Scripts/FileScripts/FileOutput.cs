@@ -1,11 +1,12 @@
 using UnityEngine;
 using System.IO;
-using TMPro;
 using System.Collections.Generic;
 using System.Linq;
 
 public class FileOutput : FileAbstract
 {
+    public GameObject confirmDialog;
+    private string pendingPath;
 
     public override void OnClick()
     {
@@ -14,29 +15,133 @@ public class FileOutput : FileAbstract
         string outputDir = Application.dataPath + "/Output";
         Directory.CreateDirectory(outputDir);
         string path = Path.Combine(outputDir, fileName + ".txt");
-        List<string> lines = new List<string>();
 
-        foreach (var lane in allLanes)
+        if (File.Exists(path))
         {
-            lane.SetLaneData();
-            if (lane is ArmLane armLane)
-            {
-                string label;
-                if(armLane.armkind == armKind.Right) label = "[Right ArmLane]";
-                else if(armLane.armkind == armKind.Left) label = "[Left ArmLane]";
-                else label = "[Head ArmLane]";
-                lines.Add(label);
-                lines.AddRange(armLane.ExportData());
-            }
-            else if (lane is SelectLane selectLane)
-            {
-                string label = selectLane.stringkind == stringKind.LED ? "[LED Lane]" : "[Music Lane]";
-                lines.Add(label);
-                lines.AddRange(selectLane.ExportData());
-            }
+            pendingPath = path;
+            confirmDialog.SetActive(true); // 警告ダイアログを表示
+            return;
         }
+
+        SaveFile(path);
+    }
+
+    public void OnConfirmOverwrite(bool overwrite)
+    {
+        confirmDialog.SetActive(false);
+
+        if (overwrite)
+        {
+            SaveFile(pendingPath);
+        }
+        else
+        {
+            Debug.Log("上書きをキャンセルしました。");
+        }
+    }
+
+    private void SaveFile(string path)
+    {
+        List<string> lines = new List<string>();
+        SetLaneData();
+
+        lines.AddRange(ExportData());
 
         File.WriteAllLines(path, lines);
         Debug.Log($"書き出し完了: {path}");
+    }
+
+    private List<string> ExportData()
+    {
+        var lines = new List<string>();
+        bool r = true;
+        bool l = true;
+        bool h = true;
+        bool c = true;
+        bool s = true;
+
+        foreach (var icon in IconList)
+        {
+            if (PartClassify.Classify(icon.GetPartType()) == "onefloat")
+            {
+                if (icon.GetPartType() == PartType.rightwing)
+                {
+                    if (r)
+                    {
+                        lines.Add("[Right ArmLane]");
+                        r = false;
+                    }
+                    lines.Add($"start:{ValueBox.RoundOff(icon.GetStart())},time:{icon.GetTime()},value:{icon.GetValue()}");
+                }
+                else if (icon.GetPartType() == PartType.leftwing)
+                {
+                    if (l)
+                    {
+                        lines.Add("[Left ArmLane]");
+                        l = false;
+                    }
+                    lines.Add($"start:{ValueBox.RoundOff(icon.GetStart())},time:{icon.GetTime()},value:{icon.GetValue()}");
+                }
+                else if (icon.GetPartType() == PartType.head)
+                {
+                    if (h)
+                    {
+                        lines.Add("[Head ArmLane]");
+                        h = false;
+                    }
+                    lines.Add($"start:{ValueBox.RoundOff(icon.GetStart())},time:{icon.GetTime()},value:{icon.GetValue()}");
+                }
+            }
+            else if (PartClassify.Classify(icon.GetPartType()) == "onestring")
+            {
+                if (icon.GetPartType() == PartType.lcd)
+                {
+                    if (c)
+                    {
+                        lines.Add("[LED Lane]");
+                        c = false;
+                    }
+                    if (icon.GetValue() == 0f)
+                        lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:Smile");
+                    else if (icon.GetValue() == 1f)
+                        lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:Sad");
+                    else if (icon.GetValue() == 2f)
+                        lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:Wink");
+                }
+                else if (icon.GetPartType() == PartType.singing)
+                {
+                    if (s)
+                    {
+                        lines.Add("[Music Lane]");
+                        s = false;
+                    }
+                    if (icon.GetValue() == 0f)
+                        lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:Smile");
+                    else if (icon.GetValue() == 1f)
+                        lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:Sad");
+                    else if (icon.GetValue() == 2f)
+                        lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:Wink");
+                }
+            }
+            icon.issaved = true;
+        }
+        return lines;
+    }
+
+    private void SetLaneData()
+    {
+        IconList.Clear();
+        IconList = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<Icons>().ToList();
+        IconList.RemoveAll(icon => icon.GetIconState() != IconState.OnLane);
+        IconList.Sort((a, b) =>
+        {
+            int result = a.GetPartType().CompareTo(b.GetPartType()); // まず PartType の値でソート
+            if (result == 0)
+            {
+                // Start が同じなら Start でソート
+                result = a.GetStart().CompareTo(b.GetStart());
+            }
+            return result;
+        });
     }
 }

@@ -1,6 +1,4 @@
 using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 
 public class Memory : MonoBehaviour
@@ -16,35 +14,41 @@ public class Memory : MonoBehaviour
     private int step = 5;
     private float dif;
 
-    void Start(){
+    void Start()
+    {
         initialization();
         SpawnMemory();
     }
 
-    private void initialization(){
-        if(zeroGO!=null&&oneGO!=null){
+    private void initialization()
+    {
+        if (zeroGO != null && oneGO != null)
+        {
             zero = zeroGO.GetComponent<RectTransform>();
             one = oneGO.GetComponent<RectTransform>();
         }
-        else{
+        else
+        {
             Debug.Log("0sまたは1sのGOの取得に失敗");
         }
 
-        dif = Mathf.Abs(zero.anchoredPosition.x-one.anchoredPosition.x);
+        dif = Mathf.Abs(zero.anchoredPosition.x - one.anchoredPosition.x);
 
-        memorypos.x = one.anchoredPosition.x+dif;
+        memorypos.x = one.anchoredPosition.x + dif;
         memorypos.y = one.anchoredPosition.y;
     }
 
-    private void SpawnMemory(){
-        for(int i=0;i<memorynum;i++){
+    private void SpawnMemory()
+    {
+        for (int i = 0; i < memorynum; i++)
+        {
             GameObject clone = Instantiate(oneGO, this.transform);
             clonert = clone.GetComponent<RectTransform>();
             memorytext = clone.GetComponent<TextMeshProUGUI>();
             clonert.anchoredPosition = memorypos;
             step += int.Parse(memorytext.text);
-            memorytext.text = step.ToString(); 
-            memorypos.x += dif; 
+            memorytext.text = step.ToString();
+            memorypos.x += dif;
         }
     }
 }

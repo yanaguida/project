@@ -1,14 +1,14 @@
 [Music Lane]
-start:0,time:3.5,emotion:Smile
-start:8,time:5,emotion:Sad
-start:16,time:4.5,emotion:Wink
-start:24,time:6,emotion:Smile
-start:32,time:5.2,emotion:Sad
-start:40,time:4.8,emotion:Wink
-start:50,time:6,emotion:Smile
-start:60,time:5,emotion:Sad
-start:70,time:4.5,emotion:Wink
-start:80,time:5.5,emotion:Smile
+start:0,time:3.5,value:Smile
+start:8,time:5,value:Sad
+start:16,time:4.5,value:Wink
+start:24,time:6,value:Smile
+start:32,time:5.2,value:Sad
+start:40,time:4.8,value:Wink
+start:50,time:6,value:Smile
+start:60,time:5,value:Sad
+start:70,time:4.5,value:Wink
+start:80,time:5.5,value:Smile
 
 [Right ArmLane]
 start:0,time:6,value:80
@@ -35,13 +35,13 @@ start:72,time:5,value:55
 start:81,time:6,value:130
 
 [LED Lane]
-start:0,time:4,emotion:Sad
-start:9,time:5,emotion:Smile
-start:18,time:4.5,emotion:Wink
-start:27,time:5,emotion:Smile
-start:36,time:5.5,emotion:Sad
-start:45,time:4.8,emotion:Wink
-start:54,time:5,emotion:Smile
-start:63,time:5.2,emotion:Sad
-start:72,time:4.5,emotion:Wink
-start:81,time:5,emotion:Smile
+start:0,time:4,value:Sad
+start:9,time:5,value:Smile
+start:18,time:4.5,value:Wink
+start:27,time:5,value:Smile
+start:36,time:5.5,value:Sad
+start:45,time:4.8,value:Wink
+start:54,time:5,value:Smile
+start:63,time:5.2,value:Sad
+start:72,time:4.5,value:Wink
+start:81,time:5,value:Smile

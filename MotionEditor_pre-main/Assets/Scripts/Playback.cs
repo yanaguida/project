@@ -4,111 +4,159 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.UI;
 
-public enum armKind{Right,Left,Head}
-public enum stringKind{LED,Music}
+public enum ModelState
+{
+    Play,
+    Stop,
+    Restart
+}
 
 public class Playback : MonoBehaviour
 {
-    public Motors rightmotor;
-    public Motors leftmotor;
-    public LED led;
-    public Audio music;
-    public Rechord_Gear rechord_gear;
     public Redline redline;
     public GameObject StartText;
     public GameObject StopText;
+    public GameObject RestartText;
     private Button targetButton;
     private ColorBlock cb;
-    private Coroutine resetCoroutine;
     private Coroutine redlineCoroutine;
-    private Coroutine gearCoroutine;
-    private List<Coroutine> functionCoroutine = new List<Coroutine>();
-    private bool isPlaying = false;
-    private List<ILane> allLanes = new List<ILane>();
+    private Coroutine buttonCoroutine;
+    [SerializeField] private Audio singing;
+    [SerializeField] private ModelState modelstate = ModelState.Play;
+    private List<Icons> allIcon = new List<Icons>();
+    private float t = 0;
 
-    public void Awake(){
+    public void Awake()
+    {
+        if (redline == null) Debug.Log("Playbackでredlineがnull");
         targetButton = GetComponent<Button>();
         cb = targetButton.colors;
-        SwitchText(true);
+        SwitchText(0);
         SwitchColor(true);
-        allLanes = new List<ILane>(FindObjectsOfType<MonoBehaviour>().OfType<ILane>());
-        foreach (var lane in allLanes){
-            if (lane is ArmLane armLane){
-                if(armLane.armkind == armKind.Right) armLane.motorScript = rightmotor;
-                else if(armLane.armkind == armKind.Left) armLane.motorScript = leftmotor;
-                else Debug.Log("ArmLane型laneの取得に失敗");
-            }
-            else if (lane is SelectLane selectLane){
-                if(selectLane.stringkind == stringKind.LED) selectLane.ledScript = led;               
-                else if(selectLane.stringkind == stringKind.Music) selectLane.musicScript = music;
-                else Debug.Log("SelectLane型laneの取得に失敗");
-            }
+    }
+
+    void Update()
+    {
+        if (modelstate == ModelState.Stop)
+            t += Time.deltaTime;
+    }
+
+    public void OnClick()
+    {
+        if (modelstate == ModelState.Play)
+        {
+            allIcon = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<Icons>().ToList();
+            StartPlayback(CalculateLastLaneTime());
+        }
+        else if (modelstate == ModelState.Stop)
+        {
+            StopPlayback();
+        }
+        else if (modelstate == ModelState.Restart)
+        {
+            allIcon = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<Icons>().ToList();
+            RestartPlayback(t, CalculateLastLaneTime(), CalculateLastLaneTime() - t);
         }
     }
 
-    public void OnClick(){
-        if (isPlaying) StopPlayback();
-        else{
-            StartPlayback();
-            resetCoroutine = StartCoroutine(Reset(CalculateLastLaneTime()));
+    private void RestartPlayback(float time, float d, float a)
+    {
+        foreach (var icon in allIcon)
+        {
+            icon.ExecuteAction(time);
         }
+        modelstate = ModelState.Stop;
+        redlineCoroutine = StartCoroutine(redline.StartRedline(d));
+        buttonCoroutine = StartCoroutine(SwitchButton(a));
+        SwitchText(1);
     }
 
-    private void StartPlayback(){
-        isPlaying = true;
-        foreach (var lane in allLanes){
-            lane.SetLaneData();
-            functionCoroutine.Add(StartCoroutine(lane.ExecuteLane()));
+    private void StartPlayback(float d)
+    {
+        modelstate = ModelState.Stop;
+        foreach (var icon in allIcon)
+        {
+            icon.ExecuteAction(0);
         }
 
-        Debug.Log(functionCoroutine[0]);
+        redlineCoroutine = StartCoroutine(redline.StartRedline(d));
 
-        if(redline==null) Debug.Log("redlineがnull");
-        else redlineCoroutine = StartCoroutine(redline.StartRedline());
-
-        if(rechord_gear==null) Debug.Log("rechord_gearがnull");
-        else gearCoroutine = StartCoroutine(rechord_gear.RotateGear());
-
-        SwitchText(false);
-        SwitchColor(false);
+        buttonCoroutine = StartCoroutine(SwitchButton(d));
     }
 
-    private IEnumerator Reset(float wait){
-        yield return new WaitForSeconds(wait);
-        redline.ResetRedline(redlineCoroutine);
-        StopCoroutine(gearCoroutine);
-        SwitchText(true);
-        SwitchColor(true);
-        isPlaying = false;
-    }
-
-    private void StopPlayback(){
-        isPlaying = false;
-        StopCoroutine(gearCoroutine);
+    private void StopPlayback()
+    {
+        modelstate = ModelState.Restart;
+        foreach (var icon in allIcon)
+        {
+            if (icon.GetPartType() == PartType.singing) singing.Pause();
+            icon.StopCoroutine();
+        }
         StopCoroutine(redlineCoroutine);
-        StopCoroutine(resetCoroutine);
-        foreach (var func in functionCoroutine){
-            StopCoroutine(func);
-        }
-        SwitchText(true);
+        StopCoroutine(buttonCoroutine);
+        SwitchText(2);
         SwitchColor(true);
     }
 
-    private float CalculateLastLaneTime(){
+    private float CalculateLastLaneTime()
+    {
         float maxTime = 0f;
-        foreach (var lane in allLanes){
-            maxTime = Mathf.Max(maxTime, lane.GetTotalTime());
+        foreach (var icon in allIcon)
+        {
+            maxTime = Mathf.Max(maxTime, icon.GetStartAndTime());
         }
+
         return maxTime;
     }
 
-    private void SwitchText(bool i){
-        StartText.SetActive(i);
-        StopText.SetActive(!i);
+    public ModelState GetModelState() => modelstate;
+    public void SetModelState(ModelState m)
+    {
+        modelstate = m;
     }
 
-    private void SwitchColor(bool i){
-        if(i){
+    private IEnumerator SwitchButton(float time)
+    {
+        SwitchText(1);
+        SwitchColor(false);
+        yield return new WaitForSeconds(time);
+        Initialize();
+    }
+
+    public void Initialize()
+    {
+        modelstate = ModelState.Play;
+        t = 0;
+        SwitchText(0);
+        SwitchColor(true);
+    }
+
+    private void SwitchText(int j)
+    {
+        if (j % 3 == 0)
+        {
+            StartText.SetActive(true);
+            StopText.SetActive(false);
+            RestartText.SetActive(false);
+        }
+        else if (j % 3 == 1)
+        {
+            StartText.SetActive(false);
+            StopText.SetActive(true);
+            RestartText.SetActive(false);
+        }
+        else
+        {
+            StartText.SetActive(false);
+            StopText.SetActive(false);
+            RestartText.SetActive(true);
+        }
+    }
+
+    private void SwitchColor(bool i)
+    {
+        if (i)
+        {
             cb.normalColor = new Color(0.78f, 0.90f, 0.98f);
             cb.highlightedColor = new Color(0.5f, 0.7f, 1.0f);
             cb.pressedColor = new Color(0.5f, 0.7f, 1.0f);
@@ -116,7 +164,8 @@ public class Playback : MonoBehaviour
             cb.disabledColor = new Color(0.5f, 0.7f, 1.0f);
             targetButton.colors = cb;
         }
-        else{
+        else
+        {
             cb.normalColor = new Color(1f, 0.75f, 0.71f);
             cb.highlightedColor = new Color(1f, 0.75f, 0.71f);
             cb.pressedColor = new Color(1f, 0.75f, 0.71f);

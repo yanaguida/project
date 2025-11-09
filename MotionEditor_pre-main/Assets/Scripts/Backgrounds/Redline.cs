@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 
 public class Redline : MonoBehaviour
 {
@@ -8,6 +7,7 @@ public class Redline : MonoBehaviour
     private RectTransform redline;
     private Vector2 prevPos;
     private float speed = ValueBox.GetDis();
+    float time = 0;
 
     void Awake()
     {
@@ -17,17 +17,22 @@ public class Redline : MonoBehaviour
         redlineGO.SetActive(false);
     }
 
-    public IEnumerator StartRedline(){
+    public IEnumerator StartRedline(float d)
+    {
         redlineGO.SetActive(true);
-        while (true){
+        while (d > time)
+        {
             redline.anchoredPosition += Vector2.right * speed * Time.deltaTime;
+            time += Time.deltaTime;
             yield return null;
         }
+        ResetRedline();
     }
 
-    public void ResetRedline(Coroutine redlineCO){
+    public void ResetRedline()
+    {
         redlineGO.SetActive(false);
-        StopCoroutine(redlineCO);
+        time = 0;
         redline.anchoredPosition = prevPos;
     }
 }

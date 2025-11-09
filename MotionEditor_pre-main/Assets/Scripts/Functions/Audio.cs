@@ -1,27 +1,71 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
-public class Audio : MonoBehaviour
+public interface Ifunc
 {
-    public AudioSource audioSource;   // 再生用 AudioSource
-    public AudioClip smileClip;
-    public AudioClip sadClip;
-    public AudioClip winkClip;
-    
+    IEnumerator Action(float start, float time, float data);
+    PartType CorrespondPart();
+}
 
-    public void Play(string music)
+public class Audio : MonoBehaviour, Ifunc
+{
+    [SerializeField] private PartType parttype;
+    [SerializeField] private AudioSource audioSource;   // 再生用 AudioSource
+    [SerializeField] private AudioClip smileClip;
+    [SerializeField] private AudioClip sadClip;
+    [SerializeField] private AudioClip winkClip;
+    private List<AudioClip> AudioList = new List<AudioClip>();
+
+    IEnumerator Start()
+    {
+        AudioList.Add(smileClip);
+        AudioList.Add(sadClip);
+        AudioList.Add(winkClip);
+        audioSource.mute = true;
+        // 無音で1フレームだけ再生してデコードしておく
+        foreach (var audio in AudioList)
+        {
+            audioSource.clip = audio;
+            audioSource.Play();
+            yield return null;
+            audioSource.Stop();
+        }
+        audioSource.mute = false;
+    }
+
+    public PartType CorrespondPart() => parttype;
+
+    private float pausedTime = 0f;     // 停止した位置を記録
+    private float currentMusic = -1f;  // 現在の曲名を記録
+
+    public IEnumerator Action(float start, float seconds, float music)
+    {
+        yield return new WaitForSeconds(start);
+        Play(music);
+        yield return new WaitForSeconds(seconds);
+        Stop();
+    }
+
+    private void Play(float music)
     {
         if (audioSource == null) return;
 
+        if (currentMusic != music)
+        {
+            pausedTime = 0f;
+            currentMusic = music;
+        }
+
         switch (music)
         {
-            case "Smile":
+            case 0:
                 audioSource.clip = smileClip;
                 break;
-            case "Sad":
+            case 1:
                 audioSource.clip = sadClip;
                 break;
-            case "Wink":
+            case 2:
                 audioSource.clip = winkClip;
                 break;
             default:
@@ -30,20 +74,27 @@ public class Audio : MonoBehaviour
         }
 
         if (audioSource.clip != null)
+        {
+            audioSource.time = pausedTime;
             audioSource.Play();
+        }
     }
 
-    public void Stop()
+    public void Pause()
     {
         if (audioSource != null && audioSource.isPlaying)
-            audioSource.Stop();
+        {
+            pausedTime = audioSource.time; // 現在の再生時間を記録
+            audioSource.Pause();           // 一時停止
+        }
     }
 
-    public IEnumerator PlayForSeconds(float seconds, string music)
+    private void Stop()
     {
-        Play(music);
-        yield return new WaitForSeconds(seconds);
-        Stop();
+        if (audioSource != null && audioSource.isPlaying)
+        {
+            pausedTime = 0f;
+            audioSource.Stop();
+        }
     }
 }
-

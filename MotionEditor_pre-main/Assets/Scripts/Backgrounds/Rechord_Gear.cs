@@ -12,13 +12,16 @@ public class Rechord_Gear : MonoBehaviour
     {
         rechord_gearGO = this.gameObject;
         rechord_gear = rechord_gearGO.GetComponent<RectTransform>();
+        StartCoroutine(RotateGear());
     }
 
-    public IEnumerator RotateGear(){
+    public IEnumerator RotateGear()
+    {
         speed = 10f;
-        while(true){
-            rechord_gear.Rotate(Vector3.forward*speed*Time.deltaTime);
-            if(speed<=50f) speed += 10f;
+        while (true)
+        {
+            rechord_gear.Rotate(Vector3.forward * speed * Time.deltaTime);
+            if (speed <= 50f) speed += 10f;
             yield return null;
         }
     }

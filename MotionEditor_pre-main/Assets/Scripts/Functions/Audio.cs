@@ -12,16 +12,18 @@ public class Audio : MonoBehaviour, Ifunc
 {
     [SerializeField] private PartType parttype;
     [SerializeField] private AudioSource audioSource;   // 再生用 AudioSource
-    [SerializeField] private AudioClip smileClip;
+    [SerializeField] private AudioClip happyClip;
     [SerializeField] private AudioClip sadClip;
-    [SerializeField] private AudioClip winkClip;
+    [SerializeField] private AudioClip angryClip;
+    [SerializeField] private AudioClip enjoyClip;
     private List<AudioClip> AudioList = new List<AudioClip>();
 
     IEnumerator Start()
     {
-        AudioList.Add(smileClip);
+        AudioList.Add(happyClip);
         AudioList.Add(sadClip);
-        AudioList.Add(winkClip);
+        AudioList.Add(angryClip);
+        AudioList.Add(enjoyClip);
         audioSource.mute = true;
         // 無音で1フレームだけ再生してデコードしておく
         foreach (var audio in AudioList)
@@ -60,13 +62,16 @@ public class Audio : MonoBehaviour, Ifunc
         switch (music)
         {
             case 0:
-                audioSource.clip = smileClip;
+                audioSource.clip = happyClip;
                 break;
             case 1:
                 audioSource.clip = sadClip;
                 break;
             case 2:
-                audioSource.clip = winkClip;
+                audioSource.clip = angryClip;
+                break;
+            case 3:
+                audioSource.clip = enjoyClip;
                 break;
             default:
                 audioSource.clip = null;

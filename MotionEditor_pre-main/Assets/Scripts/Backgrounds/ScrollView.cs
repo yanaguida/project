@@ -1,5 +1,5 @@
-using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ScrollView : MonoBehaviour
 {
@@ -7,6 +7,10 @@ public class ScrollView : MonoBehaviour
     private GameObject MotionPartList;
     public GameObject ViewModeText;
     public GameObject EditModeText;
+    public RawImage targetImage;
+    public RawImage staff_notation;
+    public Texture metatexture;
+    public Texture evatexture;
     private Vector2 prevPos;
     private Vector2 prevRec;
     private Vector2 nextPos;
@@ -49,5 +53,19 @@ public class ScrollView : MonoBehaviour
             EditModeText.SetActive(false);
         }
         i++;
+    }
+
+    public void RawImageActivate(bool i)
+    {
+        targetImage.texture = evatexture;
+        targetImage.enabled = i;
+        staff_notation.enabled = !i;
+    }
+
+    public void SetMetaImage()
+    {
+        targetImage.texture = metatexture;
+        targetImage.enabled = true;
+        staff_notation.enabled = false;
     }
 }

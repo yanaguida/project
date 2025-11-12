@@ -105,9 +105,10 @@ public class FileInput : FileAbstract
                         float.TryParse(val, out time);
                         break;
                     case "value":
-                        if (val == "Smile") value = 0f;
+                        if (val == "Happy") value = 0f;
                         else if (val == "Sad") value = 1f;
-                        else if (val == "Wink") value = 2f;
+                        else if (val == "Angry") value = 2f;
+                        else if (val == "Enjoy") value = 3f;
                         else float.TryParse(val, out value);
                         break;
                 }

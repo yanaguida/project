@@ -102,11 +102,13 @@ public class FileOutput : FileAbstract
                         c = false;
                     }
                     if (icon.GetValue() == 0f)
-                        lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:Smile");
+                        lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:Happy");
                     else if (icon.GetValue() == 1f)
                         lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:Sad");
                     else if (icon.GetValue() == 2f)
-                        lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:Wink");
+                        lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:Angry");
+                    else if (icon.GetValue() == 2f)
+                        lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:Enjoy");
                 }
                 else if (icon.GetPartType() == PartType.singing)
                 {
@@ -116,11 +118,13 @@ public class FileOutput : FileAbstract
                         s = false;
                     }
                     if (icon.GetValue() == 0f)
-                        lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:Smile");
+                        lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:Happy");
                     else if (icon.GetValue() == 1f)
                         lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:Sad");
                     else if (icon.GetValue() == 2f)
-                        lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:Wink");
+                        lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:Angry");
+                    else if (icon.GetValue() == 3f)
+                        lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:Enjoy");
                 }
             }
             icon.issaved = true;

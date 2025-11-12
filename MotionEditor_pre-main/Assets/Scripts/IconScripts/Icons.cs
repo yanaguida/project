@@ -79,7 +79,7 @@ public enum IconState
 }
 
 
-public class Icons : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler
+public class Icons : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler, IPointerClickHandler
 {
     [SerializeField] protected PartType parttype;
     [SerializeField] private ScrollRect scrollRect;
@@ -222,7 +222,35 @@ public class Icons : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHan
     public void OnBeginDrag(PointerEventData eventData)
     {
         IconRect.SetParent(parentRectTransform, false);
+        if (iconstate == IconState.OnList)
+        {
+            SetScrollPos();
+        }
         iconstate = IconState.Dragged;
+    }
+
+    private void SetScrollPos()
+    {
+        if (parttype == PartType.rightwing)
+        {
+            scrollRect.verticalNormalizedPosition = 1.0f;
+        }
+        if (parttype == PartType.leftwing)
+        {
+            scrollRect.verticalNormalizedPosition = 0.8f;
+        }
+        if (parttype == PartType.head)
+        {
+            scrollRect.verticalNormalizedPosition = 0.5f;
+        }
+        if (parttype == PartType.lcd)
+        {
+            scrollRect.verticalNormalizedPosition = 0.3f;
+        }
+        if (parttype == PartType.singing)
+        {
+            scrollRect.verticalNormalizedPosition = 0f;
+        }
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -255,6 +283,31 @@ public class Icons : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHan
         }
         else
             ResetUI();
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (iconstate == IconState.OnLane)
+        {
+            // クリックされた位置をローカル座標に変換
+            Vector2 localPoint;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                IconRect,  // 自身のRectTransform
+                eventData.position,
+                eventData.pressEventCamera,
+                out localPoint
+            );
+
+            // 中心より左か右かで伸縮方向を決定
+            if (localPoint.x < 0) // 左半分クリック
+            {
+                Shrink();
+            }
+            else // 右半分クリック
+            {
+                Extend();
+            }
+        }
     }
 
     public void Extend()

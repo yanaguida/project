@@ -5,9 +5,10 @@ public class LED : MonoBehaviour, Ifunc
 {
     [SerializeField] private PartType parttype;
     [SerializeField] private Renderer targetRenderer;         // LEDのRenderer
-    [SerializeField] private Color smileColor = Color.red; // 発光色
+    [SerializeField] private Color happyColor = Color.magenta; // 発光色
     [SerializeField] private Color sadColor = Color.blue;
-    [SerializeField] private Color winkColor = Color.green;
+    [SerializeField] private Color angryColor = Color.red;
+    [SerializeField] private Color enjoyColor = Color.yellow;
     [SerializeField] private float intensity = 2f;            // 発光強度
     private Material mat;
 
@@ -31,11 +32,13 @@ public class LED : MonoBehaviour, Ifunc
     {
         mat.EnableKeyword("_EMISSION");
         if (emotion == 0)
-            mat.SetColor("_EmissionColor", smileColor * intensity);
+            mat.SetColor("_EmissionColor", happyColor * intensity);
         if (emotion == 1)
             mat.SetColor("_EmissionColor", sadColor * intensity);
         if (emotion == 2)
-            mat.SetColor("_EmissionColor", winkColor * intensity);
+            mat.SetColor("_EmissionColor", angryColor * intensity);
+        if (emotion == 3)
+            mat.SetColor("_EmissionColor", enjoyColor * intensity);
     }
 
     public void TurnOff()

@@ -62,72 +62,67 @@ public class FileOutput : FileAbstract
 
         foreach (var icon in IconList)
         {
-            if (PartClassify.Classify(icon.GetPartType()) == "onefloat")
+            if (icon.GetPartType() == PartType.RightWing)
             {
-                if (icon.GetPartType() == PartType.rightwing)
+                if (r)
                 {
-                    if (r)
-                    {
-                        lines.Add("[Right ArmLane]");
-                        r = false;
-                    }
-                    lines.Add($"start:{ValueBox.RoundOff(icon.GetStart())},time:{icon.GetTime()},value:{icon.GetValue()}");
+                    lines.Add("[Right ArmLane]");
+                    r = false;
                 }
-                else if (icon.GetPartType() == PartType.leftwing)
-                {
-                    if (l)
-                    {
-                        lines.Add("[Left ArmLane]");
-                        l = false;
-                    }
-                    lines.Add($"start:{ValueBox.RoundOff(icon.GetStart())},time:{icon.GetTime()},value:{icon.GetValue()}");
-                }
-                else if (icon.GetPartType() == PartType.head)
-                {
-                    if (h)
-                    {
-                        lines.Add("[Head ArmLane]");
-                        h = false;
-                    }
-                    lines.Add($"start:{ValueBox.RoundOff(icon.GetStart())},time:{icon.GetTime()},value:{icon.GetValue()}");
-                }
+                lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:{icon.GetValue()}");
             }
-            else if (PartClassify.Classify(icon.GetPartType()) == "onestring")
+            else if (icon.GetPartType() == PartType.LeftWing)
             {
-                if (icon.GetPartType() == PartType.lcd)
+                if (l)
                 {
-                    if (c)
-                    {
-                        lines.Add("[LED Lane]");
-                        c = false;
-                    }
-                    if (icon.GetValue() == 0f)
-                        lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:Happy");
-                    else if (icon.GetValue() == 1f)
-                        lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:Sad");
-                    else if (icon.GetValue() == 2f)
-                        lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:Angry");
-                    else if (icon.GetValue() == 2f)
-                        lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:Enjoy");
+                    lines.Add("[Left ArmLane]");
+                    l = false;
                 }
-                else if (icon.GetPartType() == PartType.singing)
-                {
-                    if (s)
-                    {
-                        lines.Add("[Music Lane]");
-                        s = false;
-                    }
-                    if (icon.GetValue() == 0f)
-                        lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:Happy");
-                    else if (icon.GetValue() == 1f)
-                        lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:Sad");
-                    else if (icon.GetValue() == 2f)
-                        lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:Angry");
-                    else if (icon.GetValue() == 3f)
-                        lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:Enjoy");
-                }
+                lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:{icon.GetValue()}");
             }
-            icon.issaved = true;
+            else if (icon.GetPartType() == PartType.Head)
+            {
+                if (h)
+                {
+                    lines.Add("[Head ArmLane]");
+                    h = false;
+                }
+                lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:{icon.GetValue()}");
+            }
+
+            if (icon.GetPartType() == PartType.LCD)
+            {
+                if (c)
+                {
+                    lines.Add("[LED Lane]");
+                    c = false;
+                }
+                if (icon.GetValue() == 0f)
+                    lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:Happy");
+                else if (icon.GetValue() == 1f)
+                    lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:Sad");
+                else if (icon.GetValue() == 2f)
+                    lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:Angry");
+                else if (icon.GetValue() == 3f)
+                    lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:Enjoy");
+            }
+            else if (icon.GetPartType() == PartType.Singing)
+            {
+                if (s)
+                {
+                    lines.Add("[Music Lane]");
+                    s = false;
+                }
+                if (icon.GetValue() == 0f)
+                    lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:Happy");
+                else if (icon.GetValue() == 1f)
+                    lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:Sad");
+                else if (icon.GetValue() == 2f)
+                    lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:Angry");
+                else if (icon.GetValue() == 3f)
+                    lines.Add($"start:{icon.GetStart()},time:{icon.GetTime()},value:Enjoy");
+            }
+            icon.SetIssaved(true);
         }
         return lines;
     }
@@ -135,8 +130,13 @@ public class FileOutput : FileAbstract
     private void SetLaneData()
     {
         IconList.Clear();
-        IconList = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<Icons>().ToList();
+        IconList = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<IIcon>().ToList();
         IconList.RemoveAll(icon => icon.GetIconState() != IconState.OnLane);
+        foreach (var icon in IconList)
+        {
+            icon.SetData();
+            Debug.Log($"Before Sort: Part={icon.GetPartType()}, Start={icon.GetStart()}, Obj={icon}");
+        }
         IconList.Sort((a, b) =>
         {
             int result = a.GetPartType().CompareTo(b.GetPartType()); // まず PartType の値でソート

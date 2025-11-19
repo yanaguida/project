@@ -3,16 +3,31 @@ using UnityEngine;
 public class ScreenManager : MonoBehaviour
 {
     public Transform miragara;
+    private float time;
+    [SerializeField] private float speed = 0.2f;
 
     void Update()
     {
         if (Input.GetKey(KeyCode.LeftArrow))
         {
-            miragara.transform.Rotate(0f, 0f, 10f * Time.deltaTime);
+            time += Time.deltaTime;
+            miragara.transform.Rotate(0f, 0f, speed * time);
         }
-        if (Input.GetKey(KeyCode.RightArrow))
+        else if (Input.GetKey(KeyCode.RightArrow))
         {
-            miragara.transform.Rotate(0f, 0f, -10f * Time.deltaTime);
+            time += Time.deltaTime;
+            miragara.transform.Rotate(0f, 0f, -speed * time);
         }
+        else if (Input.GetKey(KeyCode.UpArrow))
+        {
+            time += Time.deltaTime;
+            miragara.transform.Rotate(speed * -time, 0f, 0f);
+        }
+        else if (Input.GetKey(KeyCode.DownArrow))
+        {
+            time += Time.deltaTime;
+            miragara.transform.Rotate(speed * time, 0f, 0f);
+        }
+        else time = 0;
     }
 }

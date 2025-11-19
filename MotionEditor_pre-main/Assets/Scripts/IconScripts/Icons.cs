@@ -1,74 +1,23 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using System.Collections.Generic;
-using System.Linq;
 
 static class ValueBox
 {
-    private static float AdjustX = 0f;
-    private const float startPos = 520f;
     private const float dispersec = 100f;//１秒につき１００メートル
+    private const float icondefaultwidth = 4f;
 
-    public static void SetAdjustX(RectTransform LaneRect)
-    {
-        AdjustX = LaneRect.sizeDelta.x / 2 - startPos;
-    }
-
-    public static float GetAdjustX() => AdjustX;
     public static float GetDis() => dispersec;
     public static float GetRate() => 1f / dispersec;
-    public static float RoundOff(float x)
-    {
-        return Mathf.Round(x * 100f) / 100f;
-    }
-}
-
-static class PartClassify
-{
-    public static string Classify(PartType parttype)
-    {
-        if (parttype == PartType.rightwing || parttype == PartType.leftwing || parttype == PartType.head)
-            return "onefloat";
-        if (parttype == PartType.lcd || parttype == PartType.singing)
-            return "onestring";
-        else
-        {
-            Debug.Log("undelared PartType");
-            return "";
-        }
-    }
+    public static float Getdefaultwidth() => icondefaultwidth;
 }
 
 public enum PartType
 {
-    rightwing = 0,
-    leftwing = 1,
-    head = 2,
-    lcd = 3,
-    singing = 4
-}
-
-public class IconData
-{
-    public PartType parttype;
-    public float start;
-    public float time;
-    public float value;
-
-    public IconData(PartType parttype, float start, float time, float value)
-    {
-        this.parttype = parttype;
-        if (0 <= start)
-            this.start = start;
-        else
-            Debug.Log("start値が不正です");
-        if (0 <= time)
-            this.time = time;
-        else
-            Debug.Log("time値が不正です");
-        this.value = value;
-    }
+    RightWing = 0,
+    LeftWing = 1,
+    Head = 2,
+    LCD = 3,
+    Singing = 4
 }
 
 public enum IconState
@@ -79,50 +28,36 @@ public enum IconState
 }
 
 
-public class Icons : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler, IPointerClickHandler
+public class IconData : UISetting
 {
-    [SerializeField] protected PartType parttype;
-    [SerializeField] private ScrollRect scrollRect;
-    protected List<Ifunc> Func = new List<Ifunc>();
-    protected Coroutine coroutine;
-    public RectTransform laneRects;
-    protected RectTransform IconRect;
-    public RectTransform parentRectTransform;
-    protected RectTransform trashRects;
-    protected Vector2 prevPos = Vector2.zero;
+    [SerializeField] protected ScrollRect scrollRect;
+    protected PartType parttype;
     protected float start;
-    protected float time = 4f;
+    protected float time = ValueBox.Getdefaultwidth();
     protected float value;
-    private const float step = 1f;
-    private float dtime = 0f;
-    [SerializeField] protected IconState iconstate;
-    private Vector2 CurrentPos;
+    protected Ifunc func;
+    private Coroutine coroutine;
     private float t = 0;
-    public bool issaved = false;
+    protected float slide_area_x_r;
+    protected float slide_area_x_l;
+    protected float slide_area_y;
 
-    protected void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         IconRect = GetComponent<RectTransform>();
-        trashRects = GameObject.Find("trash").GetComponent<RectTransform>();
-        Func = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<Ifunc>().ToList();
-        ValueBox.SetAdjustX(laneRects);
-        RectTransform currentparent = transform.parent?.GetComponentInParent<RectTransform>();
-        if (currentparent == parentRectTransform)
-            iconstate = IconState.OnList;
-        else
-            iconstate = IconState.OnLane;
     }
 
     void Update()
     {
         if (iconstate == IconState.Dragged)
         {
-            if (CurrentPos.x >= 800f && CurrentPos.y <= -600f)
+            if (IconRect.anchoredPosition.x >= slide_area_x_r && IconRect.anchoredPosition.y <= slide_area_y)
             {
                 t += Time.deltaTime;
                 scrollRect.horizontalNormalizedPosition += 0.001f * t;
             }
-            else if (CurrentPos.x <= -1200f && CurrentPos.y <= -600f)
+            else if (IconRect.anchoredPosition.x <= slide_area_x_l && IconRect.anchoredPosition.y <= slide_area_y)
             {
                 t += Time.deltaTime;
                 scrollRect.horizontalNormalizedPosition -= 0.001f * t;
@@ -131,36 +66,47 @@ public class Icons : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHan
         }
     }
 
-    protected void SetStart(float x)
+    private void SetStart()
     {
-        start = (x + dtime + ValueBox.GetAdjustX()) * ValueBox.GetRate();
+        start = (IconRect.anchoredPosition.x - IconRect.sizeDelta.x / 2f
+         + laneRects.sizeDelta.x / 2f) * ValueBox.GetRate();
+        if (start < 0)
+            start = 0;
+        start = Mathf.Round(start * 100f) / 100f;
     }
 
-    public PartType GetPartType() => parttype;
+    private void SetTime()
+    {
+        time = IconRect.sizeDelta.x / 100f;
+        time = Mathf.Round(time * 100f) / 100f;
+    }
+
+    protected virtual void SetValue() { }
     public float GetStart() => start;
     public float GetTime() => time;
-    public IconState GetIconState() => iconstate;
-    public float GetStartAndTime()
-    {
-        if (iconstate == IconState.OnLane) return start + time;
-        else return 0;
-    }
-
-    public void SetData(PartType p, float s, float t, float v)
-    {
-        parttype = p;
-        start = s;
-        time = t;
-        value = v;
-        issaved = true;
-    }
-
-    public IconData GetData()
-    {
-        return new IconData(GetPartType(), GetStart(), GetTime(), GetValue());
-    }
-
     public float GetValue() => value;
+
+    public RectTransform GetRT() => IconRect;
+
+    public PartType GetPartType() => parttype;
+
+    public IconState GetIconState() => iconstate;
+
+    public bool GetIssaved() => issaved;
+
+    public RectTransform GetLaneRT() => laneRects;
+
+    public void SetIssaved(bool i)
+    {
+        issaved = i;
+    }
+
+    public void SetData()
+    {
+        SetStart();
+        SetTime();
+        SetValue();
+    }
 
     public void Delete()
     {
@@ -169,19 +115,14 @@ public class Icons : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHan
 
     public void ExecuteAction(float t)
     {
+        SetData();
         if (iconstate == IconState.OnLane)
         {
-            foreach (var func in Func)
-            {
-                if (func.CorrespondPart() == parttype)
-                {
-                    if (start + time <= t) return;
-                    else if (start <= t)
-                        coroutine = StartCoroutine(func.Action(0, time - t + start, value));
-                    else
-                        coroutine = StartCoroutine(func.Action(start - t, time, value));
-                }
-            }
+            if (start + time <= t) return;
+            else if (start <= t)
+                coroutine = StartCoroutine(func.Action(0, time - t + start, value));
+            else
+                coroutine = StartCoroutine(func.Action(start - t, time, value));
         }
     }
 
@@ -189,211 +130,5 @@ public class Icons : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHan
     {
         if (coroutine != null)
             StopCoroutine(coroutine);
-    }
-
-    protected void ResetUI()
-    {
-        IconRect.anchoredPosition = prevPos;
-        IconRect.SetParent(parentRectTransform, false);
-        start = -1f;
-        iconstate = IconState.OnList;
-    }
-
-    protected void SetUI(RectTransform laneRect, Vector2 dropPos)
-    {
-        IconRect.SetParent(laneRect, false);
-        Vector2 localPos;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            laneRect,
-            dropPos,
-            Camera.main,
-            out localPos
-        );
-        localPos.y = 0f;
-        //ｘ軸に対して自由配置
-        localPos.x = Mathf.Round(localPos.x);
-        //グリッド線にスナップ
-        //localPos.x = Mathf.Round(localPos.x/ValueBox.GetDis()) * ValueBox.GetDis()+20f;
-        SetStart(localPos.x);
-        issaved = false;
-        IconRect.anchoredPosition = localPos;
-    }
-
-    public void OnBeginDrag(PointerEventData eventData)
-    {
-        IconRect.SetParent(parentRectTransform, false);
-        if (iconstate == IconState.OnList)
-        {
-            SetScrollPos();
-        }
-        iconstate = IconState.Dragged;
-    }
-
-    private void SetScrollPos()
-    {
-        if (parttype == PartType.rightwing)
-        {
-            scrollRect.verticalNormalizedPosition = 1.0f;
-        }
-        if (parttype == PartType.leftwing)
-        {
-            scrollRect.verticalNormalizedPosition = 0.8f;
-        }
-        if (parttype == PartType.head)
-        {
-            scrollRect.verticalNormalizedPosition = 0.5f;
-        }
-        if (parttype == PartType.lcd)
-        {
-            scrollRect.verticalNormalizedPosition = 0.3f;
-        }
-        if (parttype == PartType.singing)
-        {
-            scrollRect.verticalNormalizedPosition = 0f;
-        }
-    }
-
-    public void OnDrag(PointerEventData eventData)
-    {
-        Vector2 localPos;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-        parentRectTransform, eventData.position, eventData.pressEventCamera, out localPos);
-        IconRect.anchoredPosition = localPos;
-        CurrentPos = localPos;
-    }
-
-    public void OnEndDrag(PointerEventData eventData)
-    {
-        if (trashRects == null) Debug.Log("trashが存在しない");
-        Vector2 screenPos = eventData.position;
-        if (RectTransformUtility.RectangleContainsScreenPoint(laneRects, screenPos, eventData.pressEventCamera) && !IsOverlappingOthers())
-        {
-            SetUI(laneRects, screenPos);
-            iconstate = IconState.OnLane;
-            return;
-        }
-        else if (RectTransformUtility.RectangleContainsScreenPoint(trashRects, screenPos, eventData.pressEventCamera))
-        {
-            Destroy(this.gameObject);
-            return;
-        }
-        else if (IsOverlappingOthers())
-        {
-            ResetUI();
-        }
-        else
-            ResetUI();
-    }
-
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        if (iconstate == IconState.OnLane)
-        {
-            // クリックされた位置をローカル座標に変換
-            Vector2 localPoint;
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                IconRect,  // 自身のRectTransform
-                eventData.position,
-                eventData.pressEventCamera,
-                out localPoint
-            );
-
-            // 中心より左か右かで伸縮方向を決定
-            if (localPoint.x < 0) // 左半分クリック
-            {
-                Shrink();
-            }
-            else // 右半分クリック
-            {
-                Extend();
-            }
-        }
-    }
-
-    public void Extend()
-    {
-        if (CheckRightSideDraggables())
-        {
-            Vector2 size = IconRect.sizeDelta;
-            Vector2 pos = IconRect.anchoredPosition;
-            size.x += 100;
-            pos.x += 50;
-            IconRect.sizeDelta = size;
-            IconRect.anchoredPosition = pos;
-            time += step;
-            dtime -= 50f;
-            issaved = false;
-        }
-    }
-
-    public void Shrink()
-    {
-        Vector2 size = IconRect.sizeDelta;
-        Vector2 pos = IconRect.anchoredPosition;
-        if (size.x > 100)
-        {
-            size.x -= 100;
-            pos.x -= 50;
-            IconRect.sizeDelta = size;
-            IconRect.anchoredPosition = pos;
-            time -= step;
-            dtime += 50f;
-            issaved = false;
-        }
-    }
-
-    private bool CheckRightSideDraggables()
-    {
-        GameObject[] draggableObjects = GameObject.FindGameObjectsWithTag("Draggable");
-
-        foreach (GameObject targetobj in draggableObjects)
-        {
-            if (targetobj == this.gameObject) continue;
-            float rightend = start + time;
-            float leftend = 0f;
-            Icons targeticon = targetobj.GetComponent<Icons>();
-            if (targeticon != null && targeticon.GetPartType() == parttype)
-            {
-                leftend = targeticon.GetStart();
-            }
-            float dx = Mathf.Abs(leftend - rightend);
-            if (dx <= 1f) return false;
-        }
-        return true;
-    }
-
-    private bool IsOverlappingOthers()
-    {
-        Rect thisRect = GetWorldRect(IconRect);
-
-        // 同じタグ「Draggable」を持つ他のオブジェクトと比較
-        GameObject[] others = GameObject.FindGameObjectsWithTag("Draggable");
-
-        foreach (GameObject obj in others)
-        {
-            if (obj == gameObject) continue;
-
-            RectTransform otherRect = obj.GetComponent<RectTransform>();
-            if (otherRect == null) continue;
-
-            Rect otherWorldRect = GetWorldRect(otherRect);
-
-            if (thisRect.Overlaps(otherWorldRect))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private Rect GetWorldRect(RectTransform rectTransform)
-    {
-        Vector3[] corners = new Vector3[4];
-        rectTransform.GetWorldCorners(corners);
-        Vector3 bottomLeft = corners[0];
-        Vector3 topRight = corners[2];
-
-        return new Rect(bottomLeft, topRight - bottomLeft);
     }
 }

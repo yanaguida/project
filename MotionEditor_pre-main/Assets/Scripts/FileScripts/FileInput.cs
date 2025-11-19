@@ -1,11 +1,9 @@
 using UnityEngine;
 using System.IO;
-using System.Collections.Generic;
 using TMPro;
 
 public class FileInput : FileAbstract
 {
-    private List<IconData> IconData = new List<IconData>();
     private PartType parttype;
     private GameObject clone;
 
@@ -27,214 +25,121 @@ public class FileInput : FileAbstract
 
 
         // 現在のラベルに対応するレーン
-        List<string> buffer = new List<string>();
+        string buffer = "\0";
 
         foreach (string line in lines)
         {
             if (string.IsNullOrWhiteSpace(line))
                 continue;
 
+            // 以前のレーンにバッファを渡して反映
+            if (buffer != "\0")
+            {
+                ImportData(buffer);
+                buffer = "\0";
+            }
+
             // レーン切り替えラベル
             if (line.StartsWith("["))
             {
-                // 以前のレーンにバッファを渡して反映
-                if (buffer.Count > 0)
-                {
-                    ImportData(buffer);
-                    buffer.Clear();
-                }
-
                 // 新しいラベルに基づいて currentLane を切り替える
                 if (line == "[Right ArmLane]")
-                    parttype = PartType.rightwing;
+                    parttype = PartType.RightWing;
                 else if (line == "[Left ArmLane]")
-                    parttype = PartType.leftwing;
+                    parttype = PartType.LeftWing;
                 else if (line == "[Head ArmLane]")
-                    parttype = PartType.head;
+                    parttype = PartType.Head;
                 else if (line == "[LED Lane]")
-                    parttype = PartType.lcd;
+                    parttype = PartType.LCD;
                 else if (line == "[Music Lane]")
-                    parttype = PartType.singing;
+                    parttype = PartType.Singing;
                 else
                     Debug.Log("There are undefined tag: " + line);
             }
             else
             {
                 // データ行をバッファに追加
-                buffer.Add(line);
+                buffer = line;
             }
         }
 
         // 最後のレーンの残りデータを反映
-        if (buffer.Count > 0)
-        {
-            ImportData(buffer);
-        }
+        if (buffer != "\0") ImportData(buffer);
 
         Debug.Log("読み込み完了！");
     }
 
-    private void ImportData(List<string> lines)
+    private void ImportData(string lines)
     {
-        IconData.Clear();
+        string[] parts = lines.Split(',');
 
-        foreach (string line in lines)
+        float start = 0f;
+        float time = 0f;
+        float value = 0f;
+
+        foreach (string part in parts)
         {
-            if (string.IsNullOrWhiteSpace(line)) continue;
+            string[] kv = part.Split(':');
+            if (kv.Length != 2) continue;
 
-            string[] parts = line.Split(',');
+            string key = kv[0].Trim();
+            string val = kv[1].Trim();
 
-            float start = 0f;
-            float time = 0f;
-            float value = 0f;
-
-            foreach (string part in parts)
+            switch (key)
             {
-                string[] kv = part.Split(':');
-                if (kv.Length != 2) continue;
-
-                string key = kv[0].Trim();
-                string val = kv[1].Trim();
-
-                switch (key)
-                {
-                    case "start":
-                        float.TryParse(val, out start);
-                        break;
-                    case "time":
-                        float.TryParse(val, out time);
-                        break;
-                    case "value":
-                        if (val == "Happy") value = 0f;
-                        else if (val == "Sad") value = 1f;
-                        else if (val == "Angry") value = 2f;
-                        else if (val == "Enjoy") value = 3f;
-                        else float.TryParse(val, out value);
-                        break;
-                }
+                case "start":
+                    float.TryParse(val, out start);
+                    break;
+                case "time":
+                    float.TryParse(val, out time);
+                    break;
+                case "value":
+                    if (val == "Happy") value = 0f;
+                    else if (val == "Sad") value = 1f;
+                    else if (val == "Angry") value = 2f;
+                    else if (val == "Enjoy") value = 3f;
+                    else float.TryParse(val, out value);
+                    break;
             }
-
-            IconData data = new IconData(parttype, start, time, value);
-            IconData.Add(data);
         }
-        IconData.Sort((a, b) => a.start.CompareTo(b.start));
-        CreateChildFromData();
+        CreateChildFromData(start, time, value);
     }
 
-    private void CreateChildFromData()
+    private void CreateChildFromData(float start, float time, float value)
     {
-        foreach (var data in IconData)
-        {
-            SetCloneObj();
-            float dtime = (data.time - 4f) * 50f;
-            Vector2 setPos;
-            setPos.x = data.start * ValueBox.GetDis() - ValueBox.GetAdjustX() + dtime;
-            setPos.y = 0f;
-            RectTransform cloneRT = clone.GetComponent<RectTransform>();
-            cloneRT.anchoredPosition = setPos;
-            Vector2 size;
-            size.x = data.time * ValueBox.GetDis();
-            size.y = 200f;
-            cloneRT.sizeDelta = size;
-            if (PartClassify.Classify(data.parttype) == "onefloat")
-            {
-                TMP_InputField inputField = clone.GetComponentInChildren<TMP_InputField>(true);
-                if (inputField == null) Debug.Log("inputfieldがnull");
-                inputField.text = (data.value).ToString();
-                ArmIcon cloneScript = clone.GetComponent<ArmIcon>();
-                cloneScript.SetData(parttype, data.start, data.time, data.value);
-            }
-            else if (PartClassify.Classify(data.parttype) == "onestring")
-            {
-                TMP_Dropdown inputField = clone.GetComponentInChildren<TMP_Dropdown>(true);
-                inputField.value = (int)data.value;
-                SelectIcon cloneScript = clone.GetComponent<SelectIcon>();
-                cloneScript.SetData(parttype, data.start, data.time, data.value);
-            }
-        }
+        SetCloneObj();
+        RectTransform cloneRT = clone.GetComponent<RectTransform>();
+        Vector2 setPos;
+        Vector2 size;
+        size.x = time * ValueBox.GetDis();
+        size.y = 200f;
+        cloneRT.sizeDelta = size;
+        setPos.x = start * ValueBox.GetDis() - 6000f + cloneRT.sizeDelta.x / 2f;
+        setPos.y = 0f;
+        cloneRT.anchoredPosition = setPos;
+        IIcon cloneScript = clone.GetComponent<IIcon>();
+        cloneScript.SetIssaved(true);
+        TMP_InputField inputField = clone.GetComponentInChildren<TMP_InputField>(true);
+        if (inputField != null)
+            inputField.text = value.ToString();
+        TMP_Dropdown dropdown = clone.GetComponentInChildren<TMP_Dropdown>(true);
+        if (dropdown != null)
+            dropdown.value = (int)value;
     }
 
     private void SetCloneObj()
     {
-        if (parttype == PartType.rightwing)
+        GameObject obj = FindInactiveObject(transform.root, parttype + "Icon");
+        if (obj != null)
         {
-            GameObject obj = FindInactiveObject(transform.root, "RightWingIcon");
-            Icons icon = obj.GetComponent<Icons>();
-            if (obj != null)
-            {
-                clone = Instantiate(obj, icon.laneRects);
-                icon.issaved = true;
-                clone.SetActive(true);
-            }
-            else
-            {
-                Debug.Log("RightWingIconがnull");
-                return;
-            }
-        }
-        else if (parttype == PartType.leftwing)
-        {
-            GameObject obj = FindInactiveObject(transform.root, "LeftWingIcon");
-            Icons icon = obj.GetComponent<Icons>();
-            if (obj != null)
-            {
-                clone = Instantiate(obj, icon.laneRects);
-                icon.issaved = true;
-                clone.SetActive(true);
-            }
-            else
-            {
-                Debug.Log("LeftWingIconがnull");
-                return;
-            }
-        }
-        else if (parttype == PartType.head)
-        {
-            GameObject obj = FindInactiveObject(transform.root, "HeadIcon");
-            Icons icon = obj.GetComponent<Icons>();
-            if (obj != null)
-            {
-                clone = Instantiate(obj, icon.laneRects);
-                icon.issaved = true;
-                clone.SetActive(true);
-            }
-            else
-            {
-                Debug.Log("HeadIconがnull");
-                return;
-            }
-        }
-        else if (parttype == PartType.lcd)
-        {
-            GameObject obj = FindInactiveObject(transform.root, "LCDIcon");
-            Icons icon = obj.GetComponent<Icons>();
-            if (obj != null)
-            {
-                clone = Instantiate(obj, icon.laneRects);
-                icon.issaved = true;
-                clone.SetActive(true);
-            }
-            else
-            {
-                Debug.Log("LCDIconがnull");
-                return;
-            }
+            IIcon icon = obj.GetComponent<IIcon>();
+            clone = Instantiate(obj, icon.GetLaneRT());
+            clone.SetActive(true);
         }
         else
         {
-            GameObject obj = FindInactiveObject(transform.root, "MusicIcon");
-            Icons icon = obj.GetComponent<Icons>();
-            if (obj != null)
-            {
-                clone = Instantiate(obj, icon.laneRects);
-                icon.issaved = true;
-                clone.SetActive(true);
-            }
-            else
-            {
-                Debug.Log("MusicIconがnull");
-                return;
-            }
+            Debug.Log(parttype + "Iconがnull");
+            return;
         }
     }
 

@@ -6,7 +6,7 @@ public abstract class FileAbstract : MonoBehaviour
 {
     public GameObject screen;
     public TMP_InputField inputField;
-    protected List<Icons> IconList = new List<Icons>();
+    protected List<IIcon> IconList = new List<IIcon>();
     protected string fileName;
 
     public virtual void OnClick()

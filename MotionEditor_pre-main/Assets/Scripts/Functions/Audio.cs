@@ -45,7 +45,7 @@ public class Audio : MonoBehaviour, Ifunc
     {
         yield return new WaitForSeconds(start);
         Play(music);
-        yield return new WaitForSeconds(seconds);
+        yield return new WaitForSeconds(seconds - 0.1f);
         Stop();
     }
 

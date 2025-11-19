@@ -42,7 +42,7 @@ public class Motors : MonoBehaviour, Ifunc
         float distance = Mathf.Abs(desiredAngle - CurrentAngle);
         if (distance <= subtle)
         {
-            yield return new WaitForSeconds(desiredTime);
+            yield return new WaitForSeconds(desiredTime - 0.1f);
             yield break;
         }
 

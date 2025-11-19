@@ -24,7 +24,7 @@ public class LED : MonoBehaviour, Ifunc
     {
         yield return new WaitForSeconds(start);
         TurnOn(emotion);
-        yield return new WaitForSeconds(desiredtime);
+        yield return new WaitForSeconds(desiredtime - 0.1f);
         TurnOff();
     }
 

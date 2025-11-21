@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,11 +21,13 @@ public class ScrollView : MonoBehaviour
     public Texture metatexture;
     public Texture evatexture;
     public Playback playback;
+    public Renderer redline;
     private Vector2 prevPos;
     private Vector2 prevRec;
     private Vector2 nextPos;
     private Vector2 nextRec;
     private LaneState lanestate;
+    [SerializeField] private float speed = 0.05f;
 
     void Start()
     {
@@ -49,7 +52,10 @@ public class ScrollView : MonoBehaviour
     {
         if (playback.GetModelState() == ModelState.Stop)
         {
-            scrollrect.horizontalNormalizedPosition += 0.0001375f;
+            if (!redline.isVisible)
+            {
+                scrollrect.horizontalNormalizedPosition += speed * Time.deltaTime;
+            }
         }
     }
 

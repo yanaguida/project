@@ -35,4 +35,4 @@ start:81,time:5,value:Angry
 start:0,time:20,value:Happy
 start:20,time:20,value:Sad
 start:40,time:20,value:Enjoy
-start:60,time:80,value:Angry
+start:60,time:20,value:Angry

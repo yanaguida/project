@@ -135,7 +135,7 @@ public class FileOutput : FileAbstract
         foreach (var icon in IconList)
         {
             icon.SetData();
-            Debug.Log($"Before Sort: Part={icon.GetPartType()}, Start={icon.GetStart()}, Obj={icon}");
+            //Debug.Log($"Before Sort: Part={icon.GetPartType()}, Start={icon.GetStart()}, Obj={icon}");
         }
         IconList.Sort((a, b) =>
         {

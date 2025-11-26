@@ -9,12 +9,12 @@ public class HeadIcon : IconData, IIcon
     {
         parttype = PartType.Head;
         inputField_Arm.onValueChanged.AddListener(ReadValue);
-        GameObject funcobj = GameObject.Find("Head");
+        GameObject funcobj = GameObject.Find("Neck");
         if (funcobj != null)
         {
             func = funcobj.GetComponent<Ifunc>();
         }
-        else Debug.Log("Headがない");
+        else Debug.Log("Neckがない");
         slide_area_x_r = 100f;
         slide_area_x_l = -2000f;
         slide_area_y = -600f;

@@ -1,17 +1,23 @@
 using UnityEngine;
+using System.IO;
 using System.Diagnostics;
 
-public class PythonManager : MonoBehaviour
+public class PythonManager : FileAbstract
 {
-    public void RunPhython()
+    public override void OnClick()
     {
+        base.OnClick();
+
+        string inputDir = Application.dataPath + "/Output";
+        string path = Path.Combine(inputDir, fileName);
+
         ProcessStartInfo psi = new ProcessStartInfo();
 
         // Python.exe のフルパス（Anaconda でも公式でも可）
         psi.FileName = @"C:\Users\kamiy\.conda\envs\esp32\python.exe";
 
         // Python スクリプトのフルパスと引数"C:\Users\send_motion1.ipynb"
-        psi.Arguments = "\"C:\\Users\\test.py\" test2";
+        psi.Arguments = $"\"C:\\Users\\test.py\" \"{path}\"";
 
         psi.UseShellExecute = false;
         psi.RedirectStandardOutput = true;

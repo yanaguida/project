@@ -58,6 +58,9 @@ public class Motors : MonoBehaviour, Ifunc
         }
         iscomplete = false;
 
+        if (desiredAngle < MinAngle) desiredAngle = 0f;
+        if (MaxAngle < desiredAngle) desiredAngle = MaxAngle;
+
         while (true)
         {
             distance = Mathf.Abs(CurrentAngle - desiredAngle);

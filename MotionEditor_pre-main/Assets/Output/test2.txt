@@ -1,25 +1,34 @@
 [Right ArmLane]
-start:0,time:6,value:80
-start:8,time:5.5,value:130
-start:17,time:6,value:65
-start:25,time:5,value:90
-start:34,time:5.5,value:110
-start:42,time:6,value:45
-start:51,time:5,value:100
-start:59,time:6,value:125
-start:68,time:5,value:75
-start:76,time:6,value:30
+start:0,time:6,value:25
+start:8,time:5.5,value:0
+start:17,time:6,value:25
+start:25,time:5,value:0
+start:34,time:5.5,value:25
+start:42,time:6,value:0
+start:51,time:5,value:10
+start:59,time:6,value:25
+start:68,time:5,value:0
+start:76,time:6,value:25
 [Left ArmLane]
-start:3,time:5,value:40
-start:12,time:6,value:100
-start:20,time:5.5,value:130
-start:29,time:6,value:95
-start:37,time:5,value:70
-start:46,time:6,value:120
-start:55,time:5,value:65
-start:63,time:6,value:110
-start:72,time:5,value:55
-start:81,time:6,value:130
+start:3,time:5,value:25
+start:12,time:6,value:10
+start:20,time:5.5,value:0
+start:29,time:6,value:25
+start:37,time:5,value:0
+start:46,time:6,value:25
+start:55,time:5,value:0
+start:63,time:6,value:25
+start:72,time:5,value:0
+start:81,time:6,value:25
+[Head ArmLane]
+start:0,time:5,value:90
+start:7,time:3,value:-90
+start:12,time:8,value:0
+start:23,time:5,value:90
+start:30,time:5,value:90
+start:36,time:3,value:-90
+start:42,time:8,value:0
+start:51,time:5,value:90
 [LED Lane]
 start:0,time:4,value:Sad
 start:9,time:5,value:Happy

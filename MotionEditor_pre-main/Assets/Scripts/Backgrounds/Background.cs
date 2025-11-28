@@ -27,6 +27,7 @@ public class Background : MonoBehaviour
             bg_eva.anchoredPosition = emo_pos;
             bg_mira.anchoredPosition = eva_pos;
             scrollview.RawImageActivate(false);
+            Debug.Log("eva");
         }
         else if (i % 4 == 1)
         {
@@ -34,6 +35,8 @@ public class Background : MonoBehaviour
             bg_emo.anchoredPosition = mira_pos;
             bg_eva.anchoredPosition = meta_pos;
             bg_mira.anchoredPosition = emo_pos;
+            scrollview.staff_notation.enabled = false;
+            Debug.Log("mira");
         }
         else if (i % 4 == 2)
         {
@@ -42,6 +45,7 @@ public class Background : MonoBehaviour
             bg_eva.anchoredPosition = mira_pos;
             bg_mira.anchoredPosition = meta_pos;
             scrollview.SetMetaImage();
+            Debug.Log("meta");
         }
         else if (i % 4 == 3)
         {
@@ -50,6 +54,8 @@ public class Background : MonoBehaviour
             bg_eva.anchoredPosition = eva_pos;
             bg_mira.anchoredPosition = mira_pos;
             scrollview.RawImageActivate(true);
+            scrollview.staff_notation.enabled = true;
+            Debug.Log("emo");
         }
         i++;
     }

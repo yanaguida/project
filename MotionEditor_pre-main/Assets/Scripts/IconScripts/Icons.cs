@@ -3,12 +3,10 @@ using UnityEngine.UI;
 
 static class ValueBox
 {
-    private const float dispersec = 100f;//１秒につき１００メートル
-    private const float icondefaultwidth = 4f;
+    private const float dispersec = 500f;//１秒につき１００メートル
 
     public static float GetDis() => dispersec;
     public static float GetRate() => 1f / dispersec;
-    public static float Getdefaultwidth() => icondefaultwidth;
 }
 
 public enum PartType
@@ -33,7 +31,7 @@ public class IconData : UISetting
     [SerializeField] protected ScrollRect scrollRect;
     protected PartType parttype;
     protected float start;
-    protected float time = ValueBox.Getdefaultwidth();
+    protected float time;
     protected float value;
     protected Ifunc func;
     private Coroutine coroutine;
@@ -72,12 +70,12 @@ public class IconData : UISetting
          + laneRects.sizeDelta.x / 2f) * ValueBox.GetRate();
         if (start < 0)
             start = 0;
-        start = Mathf.Round(start * 100f) / 100f;
+        start = Mathf.Round(start);
     }
 
     private void SetTime()
     {
-        time = IconRect.sizeDelta.x / 100f;
+        time = IconRect.sizeDelta.x * ValueBox.GetRate();
         time = Mathf.Round(time * 100f) / 100f;
     }
 

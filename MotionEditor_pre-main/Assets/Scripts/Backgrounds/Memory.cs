@@ -11,7 +11,7 @@ public class Memory : MonoBehaviour
     private Vector2 memorypos;
     private TextMeshProUGUI memorytext;
     private const int memorynum = 20;
-    private int step = 5;
+    private int step = 1;
     private float dif;
 
     void Start()

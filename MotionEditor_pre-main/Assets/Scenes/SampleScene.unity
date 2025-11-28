@@ -3364,7 +3364,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1706521825}
   m_Direction: 2
   m_Value: 1.0000012
-  m_Size: 0.46757135
+  m_Size: 0.46757138
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -18198,8 +18198,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1358830597}
   m_HandleRect: {fileID: 1358830596}
   m_Direction: 2
-  m_Value: 1.000002
-  m_Size: 0.46757135
+  m_Value: 1.0000013
+  m_Size: 0.46757138
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -20505,7 +20505,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 5
+  m_text: 1
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -22025,7 +22025,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 2800000, guid: 0a4b92c13a1d2bb429a9b5b142abbc37, type: 3}
+  m_Texture: {fileID: 2800000, guid: 22f3e4ef0e1003b45adcc981eb980627, type: 3}
   m_UVRect:
     serializedVersion: 2
     x: 0
@@ -22564,7 +22564,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 2120065922}
   m_Direction: 0
   m_Value: 0
-  m_Size: 0.22945493
+  m_Size: 0.22945496
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -33422,8 +33422,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1480849070}
   m_HandleRect: {fileID: 1480849069}
   m_Direction: 2
-  m_Value: 1.0000021
-  m_Size: 0.46757135
+  m_Value: 1.0000018
+  m_Size: 0.46757138
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

@@ -1,171 +1,134 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 static class ValueBox
 {
-    private static float AdjustX = 0f;
-    private const float startPos = 520f;
     private const float dispersec = 100f;//１秒につき１００メートル
+    private const float icondefaultwidth = 4f;
 
-    public static void SetAdjustX(RectTransform LaneRect){
-        AdjustX = LaneRect.sizeDelta.x/2-startPos;
-    }
-
-    public static float GetAdjustX() => AdjustX;
     public static float GetDis() => dispersec;
-    public static float GetRate() => 1f/dispersec;
+    public static float GetRate() => 1f / dispersec;
+    public static float Getdefaultwidth() => icondefaultwidth;
+}
+
+public enum PartType
+{
+    RightWing = 0,
+    LeftWing = 1,
+    Head = 2,
+    LCD = 3,
+    Singing = 4
+}
+
+public enum IconState
+{
+    OnList,
+    OnLane,
+    Dragged
 }
 
 
-public abstract class Icons : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler
+public class IconData : UISetting
 {
-    [SerializeField] private ScrollRect scrollRect;
-    public RectTransform laneRects;
-    protected RectTransform IconRect;
-    public RectTransform parentRectTransform;
-    protected RectTransform trashRects;
-    protected Vector2 prevPos = Vector2.zero;
-    public Transform originalParent;
+    [SerializeField] protected ScrollRect scrollRect;
+    protected PartType parttype;
     protected float start;
-    protected float time = 4f;
-    private const float step = 1f;
-    private float dtime = 0f;
-    private bool isdrag = false;
-    private Vector2 CurrentPos;
-    private float t=0;
+    protected float time = ValueBox.Getdefaultwidth();
+    protected float value;
+    protected Ifunc func;
+    private Coroutine coroutine;
+    private float t = 0;
+    protected float slide_area_x_r;
+    protected float slide_area_x_l;
+    protected float slide_area_y;
 
-    protected void Awake(){
+    protected override void Awake()
+    {
+        base.Awake();
         IconRect = GetComponent<RectTransform>();
-        trashRects = GameObject.Find("trash").GetComponent<RectTransform>();
-        ValueBox.SetAdjustX(laneRects);
     }
 
-    void Update(){
-        if(isdrag){
-            if(CurrentPos.x>=800f&&CurrentPos.y<=-600f){
+    void Update()
+    {
+        if (iconstate == IconState.Dragged)
+        {
+            if (IconRect.anchoredPosition.x >= slide_area_x_r && IconRect.anchoredPosition.y <= slide_area_y)
+            {
                 t += Time.deltaTime;
-                scrollRect.horizontalNormalizedPosition += 0.001f*t;
+                scrollRect.horizontalNormalizedPosition += 0.001f * t;
             }
-            else if(CurrentPos.x<=-1200f&&CurrentPos.y<=-600f){
+            else if (IconRect.anchoredPosition.x <= slide_area_x_l && IconRect.anchoredPosition.y <= slide_area_y)
+            {
                 t += Time.deltaTime;
-                scrollRect.horizontalNormalizedPosition -= 0.001f*t;
+                scrollRect.horizontalNormalizedPosition -= 0.001f * t;
             }
             else t = 0;
         }
     }
 
-    protected void SetStart(float x){
-        start = (x+dtime+ValueBox.GetAdjustX())*ValueBox.GetRate();
+    private void SetStart()
+    {
+        start = (IconRect.anchoredPosition.x - IconRect.sizeDelta.x / 2f
+         + laneRects.sizeDelta.x / 2f) * ValueBox.GetRate();
+        if (start < 0)
+            start = 0;
+        start = Mathf.Round(start * 100f) / 100f;
     }
 
+    private void SetTime()
+    {
+        time = IconRect.sizeDelta.x / 100f;
+        time = Mathf.Round(time * 100f) / 100f;
+    }
+
+    protected virtual void SetValue() { }
     public float GetStart() => start;
-
     public float GetTime() => time;
+    public float GetValue() => value;
 
-    protected void ResetUI(){
-        IconRect.anchoredPosition = prevPos;
-        IconRect.SetParent(originalParent, false);
-        start = -1f;
-    }
+    public RectTransform GetRT() => IconRect;
 
-    protected void SetUI(RectTransform laneRect, Vector2 dropPos){
-        IconRect.SetParent(laneRect, false);
-        Vector2 localPos;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            laneRect,
-            dropPos,
-            Camera.main,
-            out localPos
-        );
-        localPos.y = 0f;
-        //ｘ軸に対して自由配置
-        localPos.x = Mathf.Round(localPos.x);
-        //グリッド線にスナップ
-        //localPos.x = Mathf.Round(localPos.x/ValueBox.GetDis()) * ValueBox.GetDis()+20f;
-        SetStart(localPos.x);
-        IconRect.anchoredPosition = localPos;
-    }
+    public PartType GetPartType() => parttype;
 
-    public void OnBeginDrag(PointerEventData eventData)
+    public IconState GetIconState() => iconstate;
+
+    public bool GetIssaved() => issaved;
+
+    public RectTransform GetLaneRT() => laneRects;
+
+    public void SetIssaved(bool i)
     {
-        IconRect.SetParent(originalParent, false);
-        isdrag = true;
+        issaved = i;
     }
 
-    public void OnDrag(PointerEventData eventData)
+    public void SetData()
     {
-        Vector2 localPos;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-        parentRectTransform, eventData.position, eventData.pressEventCamera, out localPos);
-        IconRect.anchoredPosition = localPos;
-        CurrentPos = localPos;
+        SetStart();
+        SetTime();
+        SetValue();
     }
 
-    public void OnEndDrag(PointerEventData eventData)
+    public void Delete()
     {
-        isdrag = false;
-        if(trashRects==null) Debug.Log("trashが存在しない");
-        Vector2 screenPos = eventData.position;
-        if (RectTransformUtility.RectangleContainsScreenPoint(laneRects, screenPos, eventData.pressEventCamera))
+        Destroy(this.gameObject);
+    }
+
+    public void ExecuteAction(float t)
+    {
+        SetData();
+        if (iconstate == IconState.OnLane)
         {
-            SetUI(laneRects,screenPos);
-            return;
-        }
-        else if(RectTransformUtility.RectangleContainsScreenPoint(trashRects, screenPos, eventData.pressEventCamera)){
-            Destroy(this.gameObject);
-            return;
-        }
-        else
-        ResetUI();
-    }
-
-    public void Extend(){
-        if(CheckRightSideDraggables()){
-            Vector2 size = IconRect.sizeDelta;
-            Vector2 pos = IconRect.anchoredPosition;
-            size.x += 100;
-            pos.x += 50; 
-            IconRect.sizeDelta = size;
-            IconRect.anchoredPosition = pos;
-            time += step;
-            dtime -= 50f;
+            if (start + time <= t) return;
+            else if (start <= t)
+                coroutine = StartCoroutine(func.Action(0, time - t + start, value));
+            else
+                coroutine = StartCoroutine(func.Action(start - t, time, value));
         }
     }
 
-    public void Shrink(){
-        Vector2 size = IconRect.sizeDelta;
-        Vector2 pos = IconRect.anchoredPosition;
-        if (size.x > 100) {
-            size.x -= 100;
-            pos.x -= 50;
-            IconRect.sizeDelta = size;
-            IconRect.anchoredPosition = pos;
-            time -= step;
-            dtime += 50f;
-        }
-    }
-
-    private bool CheckRightSideDraggables()
+    public void StopCoroutine()
     {
-        GameObject[] draggableObjects = GameObject.FindGameObjectsWithTag("Draggable");
-
-        foreach (GameObject targetobj in draggableObjects)
-        {
-            if (targetobj == this.gameObject) continue; 
-            float rightend = start+time;
-            float leftend = 0f;
-            Icons targeticon = targetobj.GetComponent<Icons>();
-            if (targeticon != null && targeticon.GetParent() == IconRect.parent){
-                leftend = targeticon.GetStart();
-            }
-            float dx = Mathf.Abs(leftend - rightend);
-            if (dx<=1f)  return false;
-        }
-        return true;
-    }
-
-    public Transform GetParent(){
-        return IconRect.parent;
+        if (coroutine != null)
+            StopCoroutine(coroutine);
     }
 }

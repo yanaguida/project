@@ -1,15 +1,18 @@
 using UnityEngine;
 using System.Collections;
 
-public class LED : MonoBehaviour
+public class LED : MonoBehaviour, Ifunc
 {
-    public Renderer targetRenderer;         // LEDのRenderer
-    public Color smileColor = Color.red; // 発光色
-    public Color sadColor = Color.blue;
-    public Color winkColor = Color.green;
-    public float intensity = 2f;            // 発光強度
-
+    [SerializeField] private PartType parttype;
+    [SerializeField] private Renderer targetRenderer;         // LEDのRenderer
+    [SerializeField] private Color happyColor = Color.magenta; // 発光色
+    [SerializeField] private Color sadColor = Color.blue;
+    [SerializeField] private Color angryColor = Color.red;
+    [SerializeField] private Color enjoyColor = Color.yellow;
+    [SerializeField] private float intensity = 2f;            // 発光強度
     private Material mat;
+
+    public PartType CorrespondPart() => parttype;
 
     void Start()
     {
@@ -17,27 +20,30 @@ public class LED : MonoBehaviour
         TurnOff(); // 初期状態：OFF
     }
 
-    public IEnumerator Toggle(float desiredtime, string emotion)
+    public IEnumerator Action(float start, float desiredtime, float emotion)
     {
+        yield return new WaitForSeconds(start);
         TurnOn(emotion);
-        yield return new WaitForSeconds(desiredtime);
+        yield return new WaitForSeconds(desiredtime - 0.1f);
         TurnOff();
     }
 
-    private void TurnOn(string emotion)
+    private void TurnOn(float emotion)
     {
         mat.EnableKeyword("_EMISSION");
-        if(emotion == "Smile")
-        mat.SetColor("_EmissionColor", smileColor * intensity);
-        if(emotion == "Sad")
-        mat.SetColor("_EmissionColor", sadColor * intensity);
-        if(emotion == "Wink")
-        mat.SetColor("_EmissionColor", winkColor * intensity);
+        if (emotion == 0)
+            mat.SetColor("_EmissionColor", happyColor * intensity);
+        if (emotion == 1)
+            mat.SetColor("_EmissionColor", sadColor * intensity);
+        if (emotion == 2)
+            mat.SetColor("_EmissionColor", angryColor * intensity);
+        if (emotion == 3)
+            mat.SetColor("_EmissionColor", enjoyColor * intensity);
     }
 
-    private void TurnOff()
+    public void TurnOff()
     {
         mat.DisableKeyword("_EMISSION");
-        mat.SetColor("_EmissionColor", Color.clear); 
+        mat.SetColor("_EmissionColor", Color.clear);
     }
 }

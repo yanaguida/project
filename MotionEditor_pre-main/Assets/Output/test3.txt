@@ -1,0 +1,11 @@
+[Right ArmLane]
+start:0,time:6,value:80
+start:8,time:5.5,value:130
+start:15.63,time:4,value:0
+[Left ArmLane]
+start:3,time:5,value:40
+start:12,time:6,value:100
+start:20.26,time:4,value:30
+[LED Lane]
+start:0,time:4,value:Sad
+start:9,time:5,value:Happy
